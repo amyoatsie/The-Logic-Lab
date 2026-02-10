@@ -8,20 +8,23 @@ root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
 style = ttk.Style() #creates a style object - explore themes in tkinter
-style.configure('Red.TFrame', background='red') #configured the styled object
+style.configure('#32a6a8.TFrame', background='#32a6a8') #configured the styled object
 
-frame = ttk.Frame(root, padding = 12, style='Red.TFrame') #a frame is a container, the padding is the border, it goes in root which is like a cell
+frame = ttk.Frame(root, padding = 12, style='#32a6a8.TFrame') #a frame is a container, the padding is the border, it goes in root which is like a cell
 frame.grid(row=0, column=0, sticky="NSEW") #grid gives you more control then 'pac', NSEW is the directions the size should stick to
 frame.columnconfigure(1, weight=1)
 
 name_var = tk.StringVar() #name_var is a type of snake case
-ttk.Label(frame, text="Name: ").grid(row=0, column=0, sticky="w", pady=6)
+ttk.Label(frame, text="Name: ").grid(row=0, column=0, sticky="w", pady=6) #label is a class
 ttk.Entry(frame, textvariable=name_var).grid(row=0, column=1, sticky="EW", pady=6)
 
 def greet():
-    messagebox.showinfo("Hello", f"Hi {name_var.get().strip()}")
+    messagebox.showinfo("Hello", f"Hi {name_var.get().strip()}") #f stands for formatt therefore formatted string b
 
 ttk.Button(frame, text='Greet', command=greet).grid(row=1, column=0, columnspan=2, sticky="EW", pady=6, padx=6)
 
-root.mainloop() #IMPORTANT
+root.mainloop() #IMPORTANT, IDE -> intergrated development environment (involves a text editor e.g. visual studios, a syntax check/highlighter, compiler, and debugger)
 
+#javascript/HTML is interperated
+#c++ is compiled
+#python is both
