@@ -1,0 +1,75 @@
+import tkinter as tk #allows us to reference tkinter as tk
+from tkinter import ttk, messagebox #imports the 'tkk' class, which is a blueprint
+
+root = tk.Tk() #calls the 'tk' method, and gets the return value defined as root
+root.title("Add Student (v1)") #an attribute of 'root' is the title
+root.geometry("500x400") #another parameter is geometry
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
+
+style = ttk.Style() #creates a style object - explore themes in tkinter
+style.configure('#pink.TFrame', background="#ffd0ef") #configured the styled object
+
+frame = ttk.Frame(root, padding = 12, style='#pink.TFrame') #a frame is a container, the padding is the border, it goes in root which is like a cell
+frame.grid(row=0, column=0, sticky="NSEW") #grid gives you more control then 'pac', NSEW is the directions the size should stick to
+frame.columnconfigure(1, weight=1)
+
+student_var = tk.StringVar() #name_var is a type of snake case
+ttk.Label(frame, text="Student ID: ").grid(row=0, column=0, sticky="w", pady=6) #label is a class
+id_entry = ttk.Entry(frame, textvariable=student_var); id_entry.grid(row=0, column=1, sticky="EW", pady=6)
+
+name_var = tk.StringVar() #name_var is a type of snake case
+ttk.Label(frame, text="Name: ").grid(row=1, column=0, sticky="w", pady=6) #label is a class
+ttk.Entry(frame, textvariable=name_var).grid(row=1, column=1, sticky="EW", pady=6)
+
+bus_var = tk.BooleanVar(value=True)  # stores True/False
+ttk.Label(frame, text="Bus Traveller:").grid(row=2, column=0, sticky="w", pady=6)
+ttk.Checkbutton(frame, text="Yes", variable=bus_var).grid(row=2, column=1, sticky="w", pady=6, padx=6) #creates a checkbutton as input, rather than entry
+
+#------------------------------------------------------------------
+
+tv_busData = ttk.Treeview(frame, columns=("ID", "Name", "Bus"), show="headings", height=5) 
+tv_busData.grid(row=5, column=0, columnspan=2, sticky="NSEW", pady=6) 
+tv_busData.heading("ID", text="Student ID") 
+tv_busData.heading("Name", text="Name") 
+tv_busData.heading("Bus", text="Bus") 
+tv_busData.column("ID", width=70, anchor="center") 
+tv_busData.column("Name", width=150) 
+tv_busData.column("Bus", width=100, anchor="center") 
+
+# style = ttk.Style
+# style.configure("Treeview", rowheight = 30) (fixes row height if needed)
+
+# tv_busData.insert("", tk.END, values=("123456", "Bob", False)) -> parameters include level, end, and values
+
+def save(_event=None): 
+    # validation
+    s_id = student_var.get().strip()
+    s_name = name_var.get().strip()
+    
+    if not s_id.isdigit(): 
+        messagebox.showerror("Invalid", "Student ID must be a whole number.") 
+        return 
+    if not s_name: 
+        messagebox.showerror("Invalid", "Name is required.") 
+        return 
+    
+    # determine Bus Status
+    if bus_var.get(): 
+        bus_status = "Yes" 
+    else: 
+        bus_status = "No" 
+    
+    #INSERT DATA INTO TABLE
+    tv_busData.insert("", 'end', values=(s_id, s_name, bus_status)) 
+    
+    # reset form
+    student_var.set("") 
+    name_var.set("") 
+    bus_var.set(True) # Reset checkbox to default
+    id_entry.focus_set() 
+
+ttk.Button(frame, text='Save', command=save).grid(row=3, column=0, columnspan=2, sticky="EW", pady=10) 
+root.bind("<Return>", save) 
+
+root.mainloop()
