@@ -26,6 +26,8 @@ bus_var = tk.BooleanVar(value=True)  # stores True/False
 ttk.Label(frame, text="Bus Traveller:").grid(row=2, column=0, sticky="w", pady=6)
 ttk.Checkbutton(frame, text="Yes", variable=bus_var).grid(row=2, column=1, sticky="w", pady=6, padx=6) #creates a checkbutton as input, rather than entry
 
+students = []
+
 #------------------------------------------------------------------
 
 tv_busData = ttk.Treeview(frame, columns=("ID", "Name", "Bus"), show="headings", height=5) 
@@ -69,7 +71,49 @@ def save(_event=None):
     bus_var.set(True) # Reset checkbox to default
     id_entry.focus_set() 
 
+def refresh():
+    for i in tv_busData.get_children():
+        tv_busData.delete(i)
+    for s in students:
+        tv_busData.insert("", "end", values=(s["id"], s["name"], s["bus"]))
+
+def on_select(_=None):
+    selectedRow = tv_busData.selection()
+    if not selectedRow:
+        return
+    selected_student = tv_busData.item(selectedRow[0], "values")
+    student_var.set(selected_student[0])
+    name_var.set(selected_student[1])
+    bus_var.set(selected_student[2])
+
+tv_busData.bind("<<TreeviewSelect>>", on_select)
+
+def add_update():
+    if not student_var.get().strip().isdigit():
+        messagebox
+    return
+
+def delete(_=None):
+    global students
+
+    selectedRow = tv_busData.selection()
+    if not selectedRow: #checks if anything is selected
+        return
+    selected_student = tv_busData.item(selectedRow[0], "values") #get student id data
+    id_to_delete = int(selected_student[0])  #finds student id in student list
+
+    new_list = []
+
+    for student in students: #removes that item from the list
+        if student["id"] != id_to_delete: #creates a new list without the one we want to delete
+            new_list.append(student)
+    
+    students = new_list
+    refresh()
+
 ttk.Button(frame, text='Save', command=save).grid(row=3, column=0, columnspan=2, sticky="EW", pady=10) 
+ttk.Button(frame, text='Delete', command=delete).grid(row=4, column=0, columnspan=2, sticky="EW", pady=5) 
+
 root.bind("<Return>", save) 
 
 root.mainloop()
