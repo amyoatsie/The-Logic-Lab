@@ -1,9 +1,41 @@
 # main.py (end example - Treeview + select)
 import tkinter as tk
 from tkinter import ttk, messagebox
+import csv
+CSV_PATH = "bus.csv"
+
+def load_bus():
+    try: #must exist or will crash
+        with open(CSV_PATH, newline="", encoding="utf-8") as tasks_file:
+            temp = []
+            for row in csv.DictReader(tasks_file):
+                temp.append({
+                    "id": int(row["id"]),
+                    "name": row["name"],
+                    #"busYN": row["busYN"],
+                })
+            return temp
+
+
+    except FileNotFoundError: #if doesn't exist, this recovers the program rather than crashing
+        with open(CSV_PATH, "w", newline="", encoding="utf-8") as f: #w is important as it WRITES
+            w = csv.DictWriter(f, fieldnames=["id", "name"]) #"busYN"
+            w.writeheader()
+            return[] #returns an empty list
+
+def save_bus(students):
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["id", "name"]) #"busYN"
+        w.writeheader()
+        for student in students:
+            w.writerow({
+                "id": student["id"],
+                "name": student["name"],
+                #"busYN": student["busYN"],
+            })
 
 root = tk.Tk(); root.title("Students (in-memory)")
-root.geometry("370x370")
+root.geometry("470x370")
 root.rowconfigure(0, weight=1)
 root.columnconfigure(0, weight=1)
 
@@ -100,7 +132,11 @@ def delete(_=None):
 
 ttk.Button(frm, text="Add / Update", command=add_update).grid(row=2, column=1, sticky="EW", pady=6)
 ttk.Button(frm, text="Delete", command=delete).grid(row=2, column=0, sticky="EW", pady=6)
+btn_save = ttk.Button(frm, text="Save", command=lambda: save_bus(students)).grid(row=2, column=2, sticky="EW", pady=6)
 
-root.bind("<Delete>", delete)
+
+students = load_bus() 
 refresh()
+
+root.bind('<Delete>', delete)
 root.mainloop()
