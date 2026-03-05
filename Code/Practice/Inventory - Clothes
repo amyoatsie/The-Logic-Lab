@@ -1,7 +1,43 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-#import csv
+import csv
+CSV_PATH = "inventory.csv"
+
+
+def load_inventory():
+    try: #must exist or will crash
+        with open(CSV_PATH, newline="", encoding="utf-8") as tasks_file:
+            temp = []
+            for row in csv.DictReader(tasks_file):
+                temp.append({
+                    "id": int(row["id"]),
+                    "name": row["name"],
+                    "category": row["category"],
+                    "price": row["price"],
+                    "quantity": row["quantity"]
+                })
+            return temp
+    
+    except FileNotFoundError: #if doesn't exist, this recovers the program rather than crashing
+        with open(CSV_PATH, "w", newline="", encoding="utf-8") as f: #w is important as it WRITES
+            w = csv.DictWriter(f, fieldnames=["id", "name", "category", "price", "quantity"])
+            w.writeheader()
+            return[] #returns an empty list
+
+def save_inventory(tasks):
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["id", "name", "category", "price", "quantity"])
+        w.writeheader()
+        for task in tasks:
+            w.writerow({
+                "id": task["id"],
+                "name": task["name"],
+                "category": task["category"],
+                "price": task["price"],
+                "quantity": task["quantity"]
+            })
+
 
 
 def refresh_tree(tree, tasks):
@@ -13,7 +49,7 @@ def refresh_tree(tree, tasks):
     for index, s in enumerate(tasks): #lowkey just adds to the style shhh
         tag = "even" if index % 2 == 0 else "odd" #helps with colouring lol
         tree.insert("", tk.END,
-                values=(s["id"], s["category"], s["price"], s["status"]), #table columns
+                values=(s["id"], s["name"], s["category"], s["price"], s["quantity"]), #table columns
                 tags=(tag,)) #allows me to change the row colours, yay
 
 
@@ -42,6 +78,7 @@ def main():
 
     # add vars
     item_id_var = tk.StringVar()
+    name_var = tk.StringVar()
     category_var = tk.StringVar(value="Hat") #sets dropdown option
     price_var = tk.StringVar()
     quantity_var = tk.StringVar()
@@ -50,28 +87,34 @@ def main():
 
 
     ttk.Label(frame, text="Item ID", style="Custom.TLabel").grid(row=0, column=0, sticky="w", pady=6)
-    ttk.Label(frame, text="Category", style="Custom.TLabel").grid(row=1, column=0, sticky="w", pady=6)
-    ttk.Label(frame, text="Price", style="Custom.TLabel").grid(row=2, column=0, sticky="w", pady=6)
-    ttk.Label(frame, text="Quantity", style="Custom.TLabel").grid(row=3, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Name", style="Custom.TLabel").grid(row=1, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Category", style="Custom.TLabel").grid(row=2, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Price", style="Custom.TLabel").grid(row=3, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Quantity", style="Custom.TLabel").grid(row=4, column=0, sticky="w", pady=6)
+
 
 
     entry_task_id = ttk.Entry(frame, textvariable=item_id_var)
     entry_task_id.grid(row=0, column=1, sticky="ew", pady=6)
 
+    entry_price = ttk.Entry(frame, textvariable=name_var)
+    entry_price.grid(row=1, column=1, sticky="ew", pady=6)
+
     entry_category = ttk.Combobox(frame,textvariable=category_var,
-                                  values=["Hat", "Shirt", "Pants"],state="readonly") #dropdown :)
-    entry_category.grid(row=1, column=1, sticky="ew", pady=6)
+                values=["Hat", "Shirt", "Pants"],state="readonly") #dropdown :)
+    entry_category.grid(row=2, column=1, sticky="ew", pady=6)
 
     entry_price = ttk.Entry(frame, textvariable=price_var)
-    entry_price.grid(row=2, column=1, sticky="ew", pady=6)
+    entry_price.grid(row=3, column=1, sticky="ew", pady=6)
 
     entry_qty = ttk.Entry(frame, textvariable=quantity_var)
-    entry_qty.grid(row=3, column=1, sticky="ew", pady=6)
+    entry_qty.grid(row=4, column=1, sticky="ew", pady=6)
 
 
-     # Define treeview columns using simple identifiers
-    tree = ttk.Treeview(frame, columns=("id", "category", "price", "quantity"), show="headings", height=12)
+    # Define treeview columns using simple identifiers
+    tree = ttk.Treeview(frame, columns=("id", "name", "category", "price", "quantity"), show="headings", height=12)
     tree.heading("id", text="Item ID")
+    tree.heading("name", text="Name")
     tree.heading("category", text="Category")
     tree.heading("price", text="Price")
     tree.heading("quantity", text="Quantity")
@@ -85,7 +128,7 @@ def main():
                 rowheight=25)
 
     style.map("Treeview",
-          background=[("selected", "#ff4ff3")]) #makes selected row blue
+            background=[("selected", "#ff4ff3")]) #makes selected row blue
 
     style.configure("Treeview.Heading",
                 background="#502350", #makes headers navy
@@ -101,22 +144,34 @@ def main():
             return
         selected_task = tree.item(seleted_row[0], "values")
         item_id_var.set(selected_task[0]) 
-        category_var.set(selected_task[1])
-        price_var.set(selected_task[2])
-        quantity_var.set(selected_task[3])
+        name_var.set(selected_task[1]) 
+        category_var.set(selected_task[2])
+        price_var.set(selected_task[3])
+        quantity_var.set(selected_task[4])
     
     tree.bind("<<TreeviewSelect>>", on_select)
 
     #----------------------------------
     
     def add_task():
-         # Validate data
-        task = item_id_var.get().strip()
+        # Validate data
+        task_id = item_id_var.get().strip()
+        #existing_ids = tree.get_children()
+
+        name = name_var.get().strip()
         price = price_var.get().strip()
         quantity = quantity_var.get().strip()
+    
+        if not task_id.isdigit():
+            messagebox.showerror("Invalid ID", "ID must be a positive integer")
+            return
+        for task in tasks:
+            if task["id"] == task_id:
+                messagebox.showerror("Duplicate ID", "That Item ID already exists.")
+                return
         
-        if not task.isdigit():
-            messagebox.showerror("Invalid ID", "ID must be a whole number")
+        if not name:
+            messagebox.showerror("Invalid","Item Name required"); 
             return
         
         try:
@@ -131,13 +186,15 @@ def main():
         
     
         
-        # Add to list (remove the redundant tree.insert call from the original code)
+        # Add to list
         tasks.append({
-            'id': item_id_var,
-            'category': category_var.get().strip(),
-            'price': price_var,
-            'quantity': quantity_var,
+            'id': task_id, #ENSURE TO CALL VARIABLE NAMES DEFINED ABOVE
+            'name': name, 
+            'category': category_var.get().strip(), #DO THIS FOR ALL VARIABLES NOT VALIDATED ABOVE
+            'price': price,
+            'quantity': quantity,
         })
+        # -------------------------------------------------------------
 
         # IMPORTANT TO LOAD
         refresh_tree(tree, tasks)
@@ -145,6 +202,7 @@ def main():
         # Clear the form fields
         # #clear_form(item_id_var, category_var, price_var, quantity_var, status_var)
         item_id_var.set('')
+        name_var.set('')
         category_var.set(value="Hat")
         price_var.set('')
         quantity_var.set('')
@@ -153,16 +211,15 @@ def main():
     
 
 
-
-    btn_add = ttk.Button(frame, text="Add task", command=add_task)
+    btn_add = ttk.Button(frame, text="Add", command=add_task)
     btn_add.grid(row=5, column=1, sticky="ew", pady=(5, 0))
-    #btn_save = ttk.Button(frame, text="Save", command=lambda: save_homework(tasks))
-    #btn_save.grid(row=5, column=0, sticky="ew", pady=(5, 0))
+    btn_save = ttk.Button(frame, text="Save", command=lambda: save_inventory(tasks))
+    btn_save.grid(row=5, column=0, sticky="ew", pady=(5, 0))
 
-
+    tasks = load_inventory()
     refresh_tree(tree, tasks)
     entry_task_id.focus_set()
-    #save_homework(homework)
+
     root.mainloop()
 
 

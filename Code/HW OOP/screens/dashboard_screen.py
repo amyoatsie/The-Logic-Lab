@@ -13,7 +13,7 @@ class DashboardScreen(ttk.Frame): #frame is the parent
 
         self.columnconfigure(0, weight=1)
 
-        ttk.Label(self, text="Dashboard", font=("Segoe UI", 12, "bold")).grid(
+        ttk.Label(self, text="Dashboard", font=("Segoe UI", 12, "bold")).grid( 
             row=0,
             column=0,
             sticky=tk.W,

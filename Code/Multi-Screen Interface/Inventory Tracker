@@ -1,0 +1,236 @@
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+import csv
+CSV_PATH = "inventory.csv"
+
+#CSVs
+def load_inventory():
+    try: #must exist or will crash
+        with open(CSV_PATH, newline="", encoding="utf-8") as tasks_file:
+            temp = []
+            for row in csv.DictReader(tasks_file):
+                temp.append({
+                    "id": int(row["id"]),
+                    "name": row["name"],
+                    "category": row["category"],
+                    "price": row["price"],
+                    "quantity": row["quantity"]
+                })
+            return temp
+    
+    except FileNotFoundError: #if doesn't exist, this recovers the program rather than crashing
+        with open(CSV_PATH, "w", newline="", encoding="utf-8") as f: #w is important as it WRITES
+            w = csv.DictWriter(f, fieldnames=["id", "name", "category", "price", "quantity"])
+            w.writeheader()
+            return[] #returns an empty list
+
+def save_inventory(tasks):
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["id", "name", "category", "price", "quantity"])
+        w.writeheader()
+        for task in tasks:
+            w.writerow({
+                "id": task["id"],
+                "name": task["name"],
+                "category": task["category"],
+                "price": task["price"],
+                "quantity": task["quantity"]
+            })
+
+#------------------------------
+
+def refresh_tree(tree, tasks):
+    """Clears and repopulates the Treeview with tasks from the list."""
+    for i in tree.get_children():
+        tree.delete(i)
+
+
+    for index, s in enumerate(tasks): #lowkey just adds to the style shhh
+        tag = "even" if index % 2 == 0 else "odd" #helps with colouring lol
+        tree.insert("", tk.END,
+                values=(s["id"], s["name"], s["category"], s["price"], s["quantity"]), #table columns
+                tags=(tag,)) #allows me to change the row colours, yay
+
+
+def main():
+
+    root = tk.Tk()
+    style = ttk.Style()
+    style.theme_use("clam")  # important for colouring ttk widgets
+    root.title("Homework Tracker (Lesson 1)")
+    root.geometry("950x450")
+    root.rowconfigure(0, weight=1)
+    root.columnconfigure(0, weight=1)
+    
+    style.configure("Custom.TFrame", background="#edd0f1") #changes background colours
+    style.configure("Custom.TLabel",
+                background="#edd0f1", #changes the label colours
+                foreground="#222")
+
+    frame = ttk.Frame(root, padding=12, style="Custom.TFrame")
+    frame.grid(row=0, column=0, sticky="nsew")
+    frame.columnconfigure(1, weight=1)
+    frame.columnconfigure(3, weight=2)
+    frame.rowconfigure(5, weight=1)
+
+    summary_window = tk.Toplevel(root)
+    summary_window.title("Inventory Summary")
+    summary_window.geometry("400x300")
+    
+    summary_label = ttk.Label(summary_window, text="", font=("Segoe UI", 11))
+    summary_label.pack(pady=20)
+
+    summary_window.withdraw()  # hide it at start
+
+
+    # add vars
+    item_id_var = tk.StringVar()
+    name_var = tk.StringVar()
+    category_var = tk.StringVar(value="Hat") #sets dropdown option
+    price_var = tk.StringVar()
+    quantity_var = tk.StringVar()
+
+    tasks = [] # The list to store task dictionaries
+
+
+    ttk.Label(frame, text="Item ID", style="Custom.TLabel").grid(row=0, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Name", style="Custom.TLabel").grid(row=1, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Category", style="Custom.TLabel").grid(row=2, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Price", style="Custom.TLabel").grid(row=3, column=0, sticky="w", pady=6)
+    ttk.Label(frame, text="Quantity", style="Custom.TLabel").grid(row=4, column=0, sticky="w", pady=6)
+
+
+
+    entry_task_id = ttk.Entry(frame, textvariable=item_id_var)
+    entry_task_id.grid(row=0, column=1, sticky="ew", pady=6)
+
+    entry_price = ttk.Entry(frame, textvariable=name_var)
+    entry_price.grid(row=1, column=1, sticky="ew", pady=6)
+
+    entry_category = ttk.Combobox(frame,textvariable=category_var,
+                values=["Hat", "Shirt", "Pants"],state="readonly") #dropdown :)
+    entry_category.grid(row=2, column=1, sticky="ew", pady=6)
+
+    entry_price = ttk.Entry(frame, textvariable=price_var)
+    entry_price.grid(row=3, column=1, sticky="ew", pady=6)
+
+    entry_qty = ttk.Entry(frame, textvariable=quantity_var)
+    entry_qty.grid(row=4, column=1, sticky="ew", pady=6)
+
+
+    # Define treeview columns using simple identifiers
+    tree = ttk.Treeview(frame, columns=("id", "name", "category", "price", "quantity"), show="headings", height=12)
+    tree.heading("id", text="Item ID")
+    tree.heading("name", text="Name")
+    tree.heading("category", text="Category")
+    tree.heading("price", text="Price")
+    tree.heading("quantity", text="Quantity")
+    tree.grid(row=0, column=3, rowspan=6, sticky="nsew", padx=(12, 0))
+
+    #colour!
+    style.configure("Treeview",
+                background="white",
+                foreground="black",
+                fieldbackground="white", #makes rows white
+                rowheight=25)
+
+    style.map("Treeview",
+            background=[("selected", "#ff4ff3")]) #makes selected row blue
+
+    style.configure("Treeview.Heading",
+                background="#502350", #makes headers navy
+                foreground="white",
+                font=("Segoe UI", 10, "bold"))
+    #alternative row colours
+    tree.tag_configure("odd", background="#ebdaf0")
+    tree.tag_configure("even", background="white")
+
+    def on_select(_=None):
+        seleted_row = tree.selection()
+        if not seleted_row:
+            return
+        selected_task = tree.item(seleted_row[0], "values")
+        item_id_var.set(selected_task[0]) 
+        name_var.set(selected_task[1]) 
+        category_var.set(selected_task[2])
+        price_var.set(selected_task[3])
+        quantity_var.set(selected_task[4])
+    
+    tree.bind("<<TreeviewSelect>>", on_select)
+
+    #----------------------------------
+    
+    def add_task():
+        # Validate data
+        task_id = item_id_var.get().strip()
+        #existing_ids = tree.get_children()
+
+        name = name_var.get().strip()
+        price = price_var.get().strip()
+        quantity = quantity_var.get().strip()
+    
+        if not task_id.isdigit():
+            messagebox.showerror("Invalid ID", "ID must be a positive integer")
+            return
+        for task in tasks:
+            if task["id"] == task_id:
+                messagebox.showerror("Duplicate ID", "That Item ID already exists.")
+                return
+        
+        if not name:
+            messagebox.showerror("Invalid","Item Name required"); 
+            return
+        
+        try:
+            float(price)
+        except ValueError:
+            messagebox.showerror("Invalid Price", "Price must be a number")
+            return
+        
+        if not quantity.isdigit():
+            messagebox.showerror("Invalid Qty", "Qty must be a whole number")
+            return
+        
+    
+        
+        # Add to list
+        tasks.append({
+            'id': task_id, #ENSURE TO CALL VARIABLE NAMES DEFINED ABOVE
+            'name': name, 
+            'category': category_var.get().strip(), #DO THIS FOR ALL VARIABLES NOT VALIDATED ABOVE
+            'price': price,
+            'quantity': quantity,
+        })
+        # -------------------------------------------------------------
+
+        # IMPORTANT TO LOAD
+        refresh_tree(tree, tasks)
+        
+        # Clear the form fields
+        # #clear_form(item_id_var, category_var, price_var, quantity_var, status_var)
+        item_id_var.set('')
+        name_var.set('')
+        category_var.set(value="Hat")
+        price_var.set('')
+        quantity_var.set('')
+
+        entry_task_id.focus_set()
+    
+
+
+    btn_add = ttk.Button(frame, text="Add", command=add_task)
+    btn_add.grid(row=5, column=1, sticky="ew", pady=(5, 0))
+    btn_save = ttk.Button(frame, text="Save", command=lambda: save_inventory(tasks))
+    btn_save.grid(row=5, column=0, sticky="ew", pady=(5, 0))
+
+    tasks = load_inventory()
+    refresh_tree(tree, tasks)
+    entry_task_id.focus_set()
+
+    root.mainloop()
+
+
+
+if __name__ == "__main__":
+    main()
