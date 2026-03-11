@@ -1,4 +1,48 @@
 # beebay_cli.py
+import csv
+from pathlib import Path
+
+CSV_PATH = Path(__file__).parent / "orders.csv"
+CSV_FIELDS = ["worker_bees", "queen_bees", "distance", "code", "cost"]
+
+def ensure_csv_exists(): #a function rather than an if statement
+
+    if CSV_PATH.exists() is True:
+        return
+
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+        writer.writeheader()
+
+def append_task(task_data): #!!!
+    """Appends a single task dictionary to the CSV file."""
+    ensure_csv_exists()
+    # Open in 'a' (append) mode to add to the end of the file
+    with open(CSV_PATH, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+        writer.writerow(task_data)
+        print("Saving to:", CSV_PATH.resolve())
+
+
+def save_tasks(tasks): #calls & runs the ensure_csv_exists function at the start
+    ensure_csv_exists()
+
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+        writer.writeheader()
+
+        for task in tasks:
+            writer.writerow(
+                {
+                    "worker_bees": task["worker_bees"],
+                    "queen_bees": task["queen_bees"],
+                    "distance": task["distance"],
+                    "code": task["code"],
+                    "cost": task["cost"],
+                }
+            )
+
+
 
 def calculate_post(distance_km):
     """ Determine postage cost based on delivery distance.
@@ -83,6 +127,9 @@ def main():
     #calculatess final total
     final_cost = subtotal - discount_amount
 
+    #csv update?
+    #save_tasks(self.app.tasks)
+
     # --- output ---
     print()
     print("Order Summary")
@@ -95,6 +142,18 @@ def main():
 
     print()
     print("Final total:    $", final_cost)
+
+    # --- csv update ---
+    # Prepare data dictionary to match CSV_FIELDS
+    new_task = {
+        'worker_bees': num_workers,
+        'queen_bees': num_queens,
+        'distance': distance_km,
+        'code': bonus_code,
+        'cost': f"{final_cost:.2f}"
+    }
+    # Append the new data
+    append_task(new_task)
 
 
 if __name__ == "__main__":
