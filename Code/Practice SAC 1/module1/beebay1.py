@@ -2,7 +2,7 @@
 import csv
 from pathlib import Path
 
-CSV_PATH = Path(__file__).parent / "orders.csv"
+CSV_PATH = Path(__file__).parent / "orders.csv" #saves csv withing module 1 folder
 CSV_FIELDS = ["worker_bees", "queen_bees", "distance", "code", "cost"]
 
 def ensure_csv_exists(): #a function rather than an if statement
@@ -21,7 +21,26 @@ def append_task(task_data): #!!!
     with open(CSV_PATH, 'a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
         writer.writerow(task_data)
-        print("Saving to:", CSV_PATH.resolve())
+        #print("Saving to:", CSV_PATH.resolve()) - write where the file is saved
+
+def check_queen_count(filename, num_queens):
+    total_queens = 0
+
+    #if file does not exist, allow save
+    if not filename.exists():
+        return True
+
+    with open(filename, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            total_queens += int(row["queen_bees"])
+
+    # check limit
+    if total_queens + num_queens > 10:
+        return False
+    else:
+        return True
 
 
 def save_tasks(tasks): #calls & runs the ensure_csv_exists function at the start
@@ -78,15 +97,18 @@ def main():
     print("BeeBay Order Cost Calculator")
     print("-----------------------------")
 
-    # --- input --- define a function that's called for validation
+    # --- input --- (could define a function that's called for validation)
     num_workers = int(input("Number of worker bees: "))
     if num_workers < 0:
+        print("Invalid input.")
         return
     num_queens = int(input("Number of queen bees: "))
     if num_queens < 0:
+        print("Invalid input.")
         return
     distance_km = float(input("Delivery distance (km): "))
     if distance_km < 0:
+        print("Invalid input.")
         return
     bonus_code = input("Bonus code (SALE / FREEPOST / HALFPOST or blank): ").upper()
 
@@ -127,23 +149,8 @@ def main():
     #calculatess final total
     final_cost = subtotal - discount_amount
 
-    #csv update?
-    #save_tasks(self.app.tasks)
 
-    # --- output ---
-    print()
-    print("Order Summary")
-    print("-----------------------------")
-
-    print("Bee subtotal:   $", bee_subtotal)
-    print("Surcharge:      $", surcharge_amount)
-    print("Postage:        $", postage_cost)
-    print("Discount:       $", discount_amount)
-
-    print()
-    print("Final total:    $", final_cost)
-
-    # --- csv update ---
+# --- csv update ---
     # Prepare data dictionary to match CSV_FIELDS
     new_task = {
         'worker_bees': num_workers,
@@ -152,8 +159,34 @@ def main():
         'code': bonus_code,
         'cost': f"{final_cost:.2f}"
     }
-    # Append the new data
-    append_task(new_task)
+
+    #queen validation
+    can_save = True
+    
+    if num_queens > 10:
+        can_save = False
+    elif num_queens > 0:
+        can_save = check_queen_count(CSV_PATH, num_queens)
+    
+    if can_save:
+        append_task(new_task)
+    else:
+        print("Queen count exceeds daily limit.")
+        return
+
+    # --- output ---
+    print()
+    print("Order Summary")
+    print("-----------------------------")
+
+    print("Bee subtotal:   $", bee_subtotal)
+    print("Surcharge:      $", round(surcharge_amount, 2))
+    print("Postage:        $", postage_cost)
+    print("Discount:       $", round(discount_amount, 2))
+
+    print()
+    print("Final total:    $", round(final_cost, 2))  #rounds to two decimals
+
 
 
 if __name__ == "__main__":
