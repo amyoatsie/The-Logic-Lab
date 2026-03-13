@@ -98,7 +98,9 @@ class BeeBayAdmin(ttk.Frame):
         self.tree.configure(yscrollcommand=scrollbar.set)
     
     def load_results(self):
-        #ToDo: implement search and filter code
+        #list = [] #why is the text pink???
+
+        # ToDo: implement search and filter code
         # 1. load file for reading
         # 2. add matching rows to a list
         # 3. sort matching list

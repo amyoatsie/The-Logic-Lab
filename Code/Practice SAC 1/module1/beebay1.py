@@ -1,67 +1,4 @@
 # beebay_cli.py
-import csv
-from pathlib import Path
-
-CSV_PATH = Path(__file__).parent / "orders.csv" #saves csv withing module 1 folder
-CSV_FIELDS = ["worker_bees", "queen_bees", "distance", "code", "cost"]
-
-def ensure_csv_exists(): #a function rather than an if statement
-
-    if CSV_PATH.exists() is True:
-        return
-
-    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
-        writer.writeheader()
-
-def append_task(task_data): #!!!
-    """Appends a single task dictionary to the CSV file."""
-    ensure_csv_exists()
-    # Open in 'a' (append) mode to add to the end of the file
-    with open(CSV_PATH, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
-        writer.writerow(task_data)
-        #print("Saving to:", CSV_PATH.resolve()) - write where the file is saved
-
-def check_queen_count(filename, num_queens):
-    total_queens = 0
-
-    #if file does not exist, allow save
-    if not filename.exists():
-        return True
-
-    with open(filename, "r", newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-
-        for row in reader:
-            total_queens += int(row["queen_bees"])
-
-    # check limit
-    if total_queens + num_queens > 10:
-        return False
-    else:
-        return True
-
-
-def save_tasks(tasks): #calls & runs the ensure_csv_exists function at the start
-    ensure_csv_exists()
-
-    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
-        writer.writeheader()
-
-        for task in tasks:
-            writer.writerow(
-                {
-                    "worker_bees": task["worker_bees"],
-                    "queen_bees": task["queen_bees"],
-                    "distance": task["distance"],
-                    "code": task["code"],
-                    "cost": task["cost"],
-                }
-            )
-
-
 
 def calculate_post(distance_km):
     """ Determine postage cost based on delivery distance.
@@ -97,18 +34,15 @@ def main():
     print("BeeBay Order Cost Calculator")
     print("-----------------------------")
 
-    # --- input --- (could define a function that's called for validation)
+    # --- input --- define a function that's called for validation
     num_workers = int(input("Number of worker bees: "))
     if num_workers < 0:
-        print("Invalid input.")
         return
     num_queens = int(input("Number of queen bees: "))
     if num_queens < 0:
-        print("Invalid input.")
         return
     distance_km = float(input("Delivery distance (km): "))
     if distance_km < 0:
-        print("Invalid input.")
         return
     bonus_code = input("Bonus code (SALE / FREEPOST / HALFPOST or blank): ").upper()
 
@@ -149,31 +83,6 @@ def main():
     #calculatess final total
     final_cost = subtotal - discount_amount
 
-
-# --- csv update ---
-    # Prepare data dictionary to match CSV_FIELDS
-    new_task = {
-        'worker_bees': num_workers,
-        'queen_bees': num_queens,
-        'distance': distance_km,
-        'code': bonus_code,
-        'cost': f"{final_cost:.2f}"
-    }
-
-    #queen validation
-    can_save = True
-    
-    if num_queens > 10:
-        can_save = False
-    elif num_queens > 0:
-        can_save = check_queen_count(CSV_PATH, num_queens)
-    
-    if can_save:
-        append_task(new_task)
-    else:
-        print("Queen count exceeds daily limit.")
-        return
-
     # --- output ---
     print()
     print("Order Summary")
@@ -185,8 +94,7 @@ def main():
     print("Discount:       $", round(discount_amount, 2))
 
     print()
-    print("Final total:    $", round(final_cost, 2))  #rounds to two decimals
-
+    print("Final total:    $", round(final_cost, 2))
 
 
 if __name__ == "__main__":
