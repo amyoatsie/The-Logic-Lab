@@ -157,7 +157,6 @@ def main():
         # Validate data
         task_id = item_id_var.get().strip()
         #existing_ids = tree.get_children()
-
         name = name_var.get().strip()
         price = price_var.get().strip()
         quantity = quantity_var.get().strip()
