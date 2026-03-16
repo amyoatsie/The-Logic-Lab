@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 from pathlib import Path
 import csv 
 '''sources data from a CSV file as it is explicitly stated within the design brief and as alternate data types would not function 
-as well (txt data is not structured enough and XML is over complicated for the programs given requirements)'''
+as well (txt data is not structured enough and XML is over complicated for the programs given requirements) :)'''
 
 class BeeBayAdmin(ttk.Frame):
 
