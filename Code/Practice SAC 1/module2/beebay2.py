@@ -2,7 +2,7 @@
 import csv
 from pathlib import Path
 
-CSV_PATH = Path(__file__).parent / "orders.csv" #saves csv withing module 1 folder
+CSV_PATH = Path(__file__).parent / "orders.csv" #saves csv within module 1 folder
 CSV_FIELDS = ["worker_bees", "queen_bees", "distance", "code", "cost"]
 
 def ensure_csv_exists(): #a function rather than an if statement
