@@ -1,7 +1,11 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))  # adds module4 to the path
 from models.order import Order
 from repos.order_repo import OrderRepo
+
 
 class OrderScreen(ttk.Frame):
 
@@ -102,7 +106,7 @@ class OrderScreen(ttk.Frame):
 
     def save(self):
         # TODO
-        # self.repo.save(self.order)    - need to call
+        self.repo.save(self.order) #call
         pass
 
 
