@@ -4,4 +4,4 @@ worker_bees,queen_bees,distance,code,cost
 ]100,0,102.0,SALE,326.81
 100,1,10.0,,42.50
 100,1,100.0,SALE,38.25
-100,2,75.0,HALFPOST,49.38
+100,2,75.0,HALFPOST,49.3881,1,120.0,SALE,37.29

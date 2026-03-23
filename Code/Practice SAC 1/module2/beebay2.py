@@ -64,20 +64,9 @@ def save_tasks(tasks): #calls & runs the ensure_csv_exists function at the start
 
 
 def calculate_post(distance_km):
-    """ Determine postage cost based on delivery distance.
-
-    TODO:
-    Implement the distance rules:
-        up to 50 km      -> $10
-        up to 150 km     -> $20
-        150 km or more   -> $30
-    """
-
     postage_cost = 0
-
-    #determines postage_cost using distance_km
-
-    if distance_km < 10:
+    #determine postage_cost using distance_km
+    if distance_km < 50:
         postage_cost = 10
     elif distance_km < 150:
         postage_cost = 20
