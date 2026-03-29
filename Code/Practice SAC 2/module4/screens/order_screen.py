@@ -13,9 +13,9 @@ class OrderScreen(ttk.Frame):
 
         self.grid(row=0, column=0, sticky="nsew")
 
-        self.num_workers_var = tk.IntVar()
+        self.num_workers_var = tk.IntVar() #define all var
         self.num_queens_var = tk.IntVar()
-        self.distance_km_var = tk.DoubleVar()
+        self.distance_km_var = tk.DoubleVar() #float
         self.bonus_code_var = tk.StringVar()
         self.final_cost_var = tk.StringVar()
 
@@ -34,45 +34,45 @@ class OrderScreen(ttk.Frame):
 
         ttk.Label(
             self,
-            text="BeeBay Order Entry",
+            text="BeeBay Order Entry", #title
             font=("Arial", 16, "bold")
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 15))
 
-        ttk.Label(self, text="Number of worker bees:").grid(
+        ttk.Label(self, text="Number of worker bees:").grid( #first input
             row=1, column=0, sticky="w", padx=(0, 10), pady=5
         )
-        ttk.Entry(self, textvariable=self.num_workers_var).grid(
+        ttk.Entry(self, textvariable=self.num_workers_var).grid( #txtbox input
             row=1, column=1, sticky="ew", pady=5
         )
 
-        ttk.Label(self, text="Number of queen bees:").grid(
+        ttk.Label(self, text="Number of queen bees:").grid( #second input
             row=2, column=0, sticky="w", padx=(0, 10), pady=5
         )
-        ttk.Entry(self, textvariable=self.num_queens_var).grid(
+        ttk.Entry(self, textvariable=self.num_queens_var).grid( #txtbox input
             row=2, column=1, sticky="ew", pady=5
         )
 
-        ttk.Label(self, text="Delivery distance (km):").grid(
+        ttk.Label(self, text="Delivery distance (km):").grid( #third input
             row=3, column=0, sticky="w", padx=(0, 10), pady=5
         )
-        ttk.Entry(self, textvariable=self.distance_km_var).grid(
+        ttk.Entry(self, textvariable=self.distance_km_var).grid( #txtbox input
             row=3, column=1, sticky="ew", pady=5
         )
 
-        ttk.Label(self, text="Bonus code:").grid(
+        ttk.Label(self, text="Bonus code:").grid( #dropdown option
             row=4, column=0, sticky="w", padx=(0, 10), pady=5
         )
         ttk.Combobox(
             self,
             textvariable=self.bonus_code_var,
-            state="readonly",
-            values=["", "SALE", "FREEPOST", "HALFPOST"]
+            state="readonly", #prevent user input
+            values=["", "SALE", "FREEPOST", "HALFPOST"] #dropdown options
         ).grid(row=4, column=1, sticky="ew", pady=5)
 
         ttk.Label(self, text="Final cost:").grid(
             row=5, column=0, sticky="w", padx=(0, 10), pady=5
         )
-        ttk.Entry(self, textvariable=self.final_cost_var, state="readonly").grid(
+        ttk.Entry(self, textvariable=self.final_cost_var, state="readonly").grid( #prevent user input
             row=5, column=1, sticky="ew", pady=5
         )
 
@@ -97,22 +97,22 @@ class OrderScreen(ttk.Frame):
         self.order.calculate()
         
         #update total on screen
-        self.final_cost_var.set(f"{self.order.final_cost:.2f}")
+        self.final_cost_var.set(f"${self.order.final_cost:.2f}")
 
     def save(self):
         # TODO
         # call self.repo.save(self.order)    
         if(self.repo.check_queen_count(self.num_queens_var.get())):
             if(self.repo.save(self.order)):
-                messagebox.showinfo("Save success", "Yes Order saved")
+                messagebox.showinfo("Save success", "Order successfully saved")
             else:
-                messagebox.showerror("Save error", "Error saving Order")
+                messagebox.showerror("Error", "Error saving Order")
         else:
-            messagebox.showwarning("Save error", "No can do - too many Queens today")
+            messagebox.showwarning("Error", "Cannot place Order, Not enough Queens available today") #"No can do - too many Queens today" - mr pate
             
 
 
-def main():
+def main(): #kinda the same
     root = tk.Tk()
     root.title("BeeBay Ordering")
     root.geometry("620x320")

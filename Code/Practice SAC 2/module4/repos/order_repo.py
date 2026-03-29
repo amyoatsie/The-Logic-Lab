@@ -5,7 +5,7 @@ from models.order import Order
 class OrderRepo:
     def __init__(self, filename):
         self.filename = filename
-        self.FIELDNAMES = (
+        self.FIELDNAMES = ( #all the csv field names
             "sales_id",
             "num_workers",
             "num_queens",
@@ -15,13 +15,13 @@ class OrderRepo:
         )
 
 
-    def create_file(self):
+    def create_file(self): #i think this can be the same always
 
         with open(self.filename, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.DictWriter(file, fieldnames=self.FIELDNAMES)
             writer.writeheader()
 
-    def get_next_id(self):
+    def get_next_id(self): #LMAO he gave us the code omg
         # TODO:
         # 1. If the file does not exist, create it, with headers and return 1
         if not Path(self.filename).exists():
@@ -39,7 +39,7 @@ class OrderRepo:
         # 5. Return the next ID 
         return highest_id + 1
 
-    def check_queen_count(self, num_queens):
+    def check_queen_count(self, num_queens): #validation bit
         # TODO:
         # 1. ensure that num_queens (from new order) plus sum of queens in file < 11
         if num_queens > 10:

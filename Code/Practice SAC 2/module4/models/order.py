@@ -2,11 +2,11 @@ from dataclasses import dataclass
 
 @dataclass
 class Order:
-    WORKER_PRICE = 0.05
+    WORKER_PRICE = 0.05 #set constants (in all caps for readability)
     QUEEN_PRICE = 15.00
     QUEEN_SURCHARGE_RATE = 0.125
 
-    num_workers: int
+    num_workers: int #type hints, again for programmers readibility not program
     num_queens: int
     distance_km: float
     bonus_code: str
@@ -18,7 +18,7 @@ class Order:
 #     def __init__(self, num_workers, num_queens, distance_km, bonus_code, final_cost = 0, sales_id = None):
 #         pass
     
-    def calculate_post(self):
+    def calculate_post(self): #function from module 1
 
         postage_cost = 0
         if self.distance_km < 50:
@@ -30,7 +30,7 @@ class Order:
 
         return postage_cost
 
-    def calculate(self):
+    def calculate(self): #almost all of module 1
         # TODO: implement the calculation logic from Module 1
         # does not need to return a value, it would update the attributes.
 
@@ -60,14 +60,14 @@ class Order:
 
         self.final_cost = subtotal - discount_amount
     
-    def to_csv_row(self):
+    #def to_csv_row(self): #irrelevant???
         # TODO: return this order as a list in the correct CSV field order
         # Order:
         # sales_id, num_workers, num_queens, distance_km, bonus_code, final_cost
         pass
     
     def to_dict(self):
-        #this is better called to_dict - sorry!!
+        #this is better called to_dict - sorry!! -mr pate
         return {
             "sales_id": self.sales_id,
             "num_workers": self.num_workers,

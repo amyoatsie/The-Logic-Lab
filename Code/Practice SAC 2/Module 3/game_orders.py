@@ -13,11 +13,11 @@ class GameStoreAdmin(ttk.Frame):
         self.filter_var = tk.StringVar(value="Premium Orders")
         self.sort_var = tk.StringVar(value="price")
 
-        self.setup_grid()
-        self.create_widgets()
-
         BASE_DIR = Path(__file__).resolve().parent
         self.orders_csv = BASE_DIR / "game_orders.csv"
+
+        self.setup_grid()
+        self.create_widgets()
 
     def setup_grid(self):
 
@@ -128,7 +128,7 @@ class GameStoreAdmin(ttk.Frame):
             return sorted(rows, key=lambda x: x["price"]) #simplified version of list creation to reduce redundincy
             #list is the chosen data structure to represent the array as it is the most effecient method within python 
         
-        else: #as there are currently only two sorting options, if it isn't one it will default to the other
+        elif sort_option == "download_size_gb": #as there are currently only two sorting options else could be used but elif is safer
             #ToDo: if more sorting options were added this must be changed to an elif statement
             return sorted(rows, key=lambda x: x["download_size_gb"])
             #list is the chosen data structure to represent the array as it is the most effecient method within python 
@@ -142,7 +142,7 @@ class GameStoreAdmin(ttk.Frame):
             self.tree.insert("", "end", values=(row["order_id"], 
                                                 row["customer_name"], 
                                                 row["game_title"],
-                                                row["price"],
+                                                f"{row['price']:.2f}", #formatted to 2 dps
                                                 row["download_size_gb"],
                                                 row["discount_code"]
                                                 ))
@@ -154,8 +154,6 @@ class GameStoreAdmin(ttk.Frame):
         rows = self.filter_orders(rows) #call the filter function to filter the list based on chosen combobox
         rows = self.sort_orders(rows) #call the sort function to sort the list based on chosen combobox
         self.display_sales(rows) #load list to treeview and displays data
-        
-        pass
 
 
 def main():

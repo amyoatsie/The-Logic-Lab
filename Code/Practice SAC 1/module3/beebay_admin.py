@@ -134,7 +134,7 @@ class BeeBayAdmin(ttk.Frame):
                 #add each CSV row to the new filtered list which meets the selected filter criteria of at least 1 queen
                 filtered.append(row)
             elif filter_option == "Orders with no queens" and row["num_queens"] == 0:
-                #add     each CSV row to the new filtered list which meets the selected filter criteria of 0 queens
+                #add each CSV row to the new filtered list which meets the selected filter criteria of 0 queens
                 filtered.append(row)
             
             #ToDo: add a filter 'All' to display all csv data

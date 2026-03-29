@@ -1,0 +1,11 @@
+order_id,product_name,category,eco_rating,price,discount_applied
+201,Bamboo Toothbrush,Personal Care,5,4.50,Yes
+202,Plastic Bottle,Drinks,2,2.00,No
+203,Reusable Straw,Kitchen,4,3.50,Yes
+204,Cotton Bag,Clothing,5,6.00,No
+205,Energy Bar,Food,3,2.50,Yes
+206,Glass Jar,Kitchen,4,5.50,No
+207,Solar Charger,Electronics,5,25.00,Yes
+208,Paper Notebook,Stationery,4,3.00,No
+209,Plastic Cutlery,Kitchen,1,1.50,No
+210,Hemp Backpack,Clothing,5,1.00,Yes
