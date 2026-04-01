@@ -18,7 +18,7 @@ class Order:
 #     def __init__(self, num_workers, num_queens, distance_km, bonus_code, final_cost = 0, sales_id = None):
 #         pass
     
-    def calculate_post(self): #function from module 1
+    def calculate_post(self): #function from module 1, method in the order class?
 
         postage_cost = 0
         if self.distance_km < 50:

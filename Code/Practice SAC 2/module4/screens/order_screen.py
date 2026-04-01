@@ -5,7 +5,7 @@ from repos.order_repo import OrderRepo
 
 class OrderScreen(ttk.Frame):
 
-    def __init__(self, parent, repo):
+    def __init__(self, parent, repo): #validation with parameters?
         super().__init__(parent, padding=20)
         self.parent = parent
         self.repo = repo #passed from App
