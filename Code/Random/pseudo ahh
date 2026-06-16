@@ -1,0 +1,58 @@
+User.login(username)
+// Purpose: Validates the username and creates a user session
+
+BEGIN METHOD login(username)
+
+    IF username = "" THEN
+        RETURN FALSE
+    ELSE
+        self.username ← username
+        RETURN TRUE
+    ENDIF
+
+END METHOD
+~
+Challenge.loadChallenge(challengeID)
+
+BEGIN METHOD loadChallenge(challengeID)
+
+    FOR EACH challenge IN challengeList
+        IF challenge.challengeID = challengeID THEN
+            RETURN TRUE
+        ENDIF
+    ENDFOR
+    RETURN FALSE
+END METHOD
+~
+Question.checkAnswer(userAnswer)
+
+BEGIN METHOD checkAnswer(userAnswer)
+
+    IF userAnswer = self.correctAnswer THEN
+        RETURN TRUE
+    ELSE
+        RETURN FALSE
+    ENDIF
+END METHOD
+~
+Challenge.loadChallenge(challengeID)
+// Purpose: Loads the challenge selected by the user
+
+BEGIN METHOD loadChallenge(challengeID)
+
+    IF challengeID >= 1 AND challengeID <= TOTAL_CHALLENGES THEN
+        self.challengeID ← challengeID
+        self.correctAnswers ← challengeList[challengeID].correctAnswers
+        self.challengeStatus ← challengeList[challengeID].challengeStatus
+        self.challengeScore ← 0
+
+        RETURN TRUE
+    ELSE
+        RETURN FALSE
+    ENDIF
+END METHOD
+~
+BEGIN METHOD getProgress()
+
+    RETURN self.numCompleted
+END METHOD

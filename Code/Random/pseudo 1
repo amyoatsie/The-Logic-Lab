@@ -1,0 +1,23 @@
+BEGIN
+    INPUT username
+
+    result ← CALL User.login(username)
+
+    IF result = FALSE THEN
+        message ← "Please enter a username"
+    ELSE
+        message ← "Login successful"
+    ENDIF
+
+    OUTPUT message
+END
+~
+User.resetProgress()
+
+BEGIN METHOD resetProgress()
+
+    self.numCompleted ← 0
+    self.currentChallenge ← 1
+    self.challengeUnlocked ← FALSE
+    RETURN TRUE
+END METHOD
