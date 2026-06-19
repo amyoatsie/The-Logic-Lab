@@ -31,17 +31,14 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         self.current_screen = HomeScreen(self.container)
         self.current_screen.pack(fill="both", expand=True)
 
-    def setup_custom_theme(self): # custom colouring is defined to match the mockups
+    def setup_custom_theme(self): # custom colouring is defined to match the mockups in a method
         # Creates and applies the global color set application-wide
         style = ttk.Style()
-        custom_theme_data = {
-            "name": "logic_lab_theme",
-            "type": "light",
-            "colors": {
+        custom_colors = {
             'primary': '#46403A',
             'secondary': '#D7C4AC',
             'success': "#61daae", 
-            'info': '#36b9cc', # might not need to change?
+            'info': '#A2B9CB', # name as border
             'warning': '#f6c23e', # might not need to change?
             'danger': '#B3261E',
             'light': '#FFF6EB',
@@ -49,23 +46,43 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
             'bg': '#C1A37F',
             'fg': '#2e2f37', # have yet to change, text colour (fg)
             'selectbg': '#eaecf4', # have yet to change
-            'selectfg': '#2e2f37', # have yet to change
+            'selectfg': "#ffffff", # front 
             'border': '#A2B9CB',
             'inputfg': '#2e2f37', # have yet to change
-            'inputbg': '#ffffff', # have yet to change
+            'inputbg': '#CAB8A2',
             'active': '#dddfeb' # have yet to change
             }
-        }
-        from ttkbootstrap.themes.standard import ThemeDefinition # Used google to fix the theme_name error with this
-        custom_theme = ThemeDefinition(
-            name=custom_theme_data["name"],
-            themetype=custom_theme_data["type"],
-            colors=custom_theme_data["colors"]
-        )
-
-        style.register_theme(custom_theme)
-        style.theme_use(custom_theme.name)
         
+        style.theme_names().append('logic_lab_theme')
+        style.theme_use('flatly') # Set a standard base theme style to safely map basic window behaviors !!!        
+        # Override the colors in memory instantly using the official settings setter
+        for color_name, hex_code in custom_colors.items():
+            style.colors.set(color_name, hex_code)
+
+        HEADING_FONT = "Arial Black" # Used "Arial Black" as an Archivo alternative 
+        BODY_FONT = "Roboto" # Main text font defined as a constant
+        BG_COLOR = custom_colors['bg']
+
+        # Heading 1 (The main header)
+        style.configure('H1.TLabel', font=(HEADING_FONT, -48), foreground=custom_colors['primary'], background=BG_COLOR)
+        # Heading 2 (The question numbers)
+        style.configure('H2.TLabel', font=(BODY_FONT, -24), foreground=custom_colors['primary'], background=custom_colors['secondary'])
+        # Heading 3 (The menu sub-headings and the questions)
+        style.configure('H3.TLabel', font=(BODY_FONT, -18), foreground=custom_colors['primary'], background=custom_colors['secondary'])
+        # Heading 4 (The user inputs and main answers) !!!
+        style.configure('H4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], background=BG_COLOR)
+        # Heading 5 (The explanatory text)
+        style.configure('H5.TLabel', font=(BODY_FONT, -14), foreground=custom_colors['primary'], background=BG_COLOR)
+        # Heading 6 (Buttons)
+        style.configure('H6.TButton', font=(BODY_FONT, -16), foreground=custom_colors['light'], background=custom_colors['info'], 
+                        bordercolor=custom_colors['border'], focuscolor=custom_colors['border']) # Outline border color and Focus ring color
+    
+        #Heading 7 (Comboboxes)
+        style.configure('H4.TCombobox', font=(HEADING_FONT, -16), foreground=custom_colors['fg'], background=custom_colors['inputbg'], 
+                        bordercolor=custom_colors['primary'], arrowcolor=custom_colors['primary']) # Color of the dropdown triangle arrow
+                        
+
+
 
 
 
