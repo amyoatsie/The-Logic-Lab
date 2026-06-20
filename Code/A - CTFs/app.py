@@ -3,7 +3,8 @@ from pathlib import Path
 import ttkbootstrap as ttk # type: ignore (error showed)
 
 # Import screens
-from screens.home_screen import HomeScreen
+from screens.home_screen import homeScreen
+from screens.case_one import challengeScreenOne
 # e.g. from screens.challenge_1 import Challenge1Screen (might change the name?)
 
 # Import repos
@@ -27,8 +28,8 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         self.container = ttk.Frame(self) # in case future errors occur, ttk could be change to tb which is a more universal abbreviation
         self.container.pack(fill="both", expand=True)
 
-        # initialize initial screen display !!!
-        self.current_screen = HomeScreen(self.container)
+        # initialize initial screen display !!! change to homescreen!
+        self.current_screen = challengeScreenOne(self.container)
         self.current_screen.pack(fill="both", expand=True)
 
     def setup_custom_theme(self): # custom colouring is defined to match the mockups in a method
@@ -64,27 +65,88 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         BG_COLOR = custom_colors['bg']
 
         # Heading 1 (The main header)
-        style.configure('H1.TLabel', font=(HEADING_FONT, -48), foreground=custom_colors['primary'], background=BG_COLOR)
+        style.configure('H1.TLabel', font=(HEADING_FONT, -48), foreground=custom_colors['primary'], 
+                        background=BG_COLOR)
         # Heading 2 (The question numbers)
-        style.configure('H2.TLabel', font=(BODY_FONT, -24), foreground=custom_colors['primary'], background=custom_colors['secondary'])
+        style.configure('H2.TLabel', font=(BODY_FONT, -24), foreground=custom_colors['primary'], 
+                        background=custom_colors['secondary'])
         # Heading 3 (The menu sub-headings and the questions)
-        style.configure('H3.TLabel', font=(BODY_FONT, -18), foreground=custom_colors['primary'], background=custom_colors['secondary'])
+        style.configure('H3.TLabel', font=(BODY_FONT, -18), foreground=custom_colors['primary'], 
+                        background=custom_colors['secondary'])
         # Heading 4 (The user inputs and main answers) !!!
-        style.configure('H4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], background=BG_COLOR)
+        style.configure('H4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], 
+                        background=BG_COLOR)
         # Heading 5 (The explanatory text)
-        style.configure('H5.TLabel', font=(BODY_FONT, -14), foreground=custom_colors['primary'], background=BG_COLOR)
+        style.configure('H5.TLabel', font=(BODY_FONT, -14), foreground=custom_colors['primary'], 
+                        background=BG_COLOR)
         # Heading 6 (Buttons)
-        style.configure('H6.TButton', font=(BODY_FONT, -16), foreground=custom_colors['light'], background=custom_colors['info'], 
-                        bordercolor=custom_colors['border'], focuscolor=custom_colors['border']) # Outline border color and Focus ring color
-    
-        #Heading 7 (Comboboxes)
-        style.configure('H4.TCombobox', font=(HEADING_FONT, -16), foreground=custom_colors['fg'], background=custom_colors['inputbg'], 
-                        bordercolor=custom_colors['primary'], arrowcolor=custom_colors['primary']) # Color of the dropdown triangle arrow
-                        
+        style.configure('H6.TButton', font=(BODY_FONT, -16), foreground=custom_colors['light'], 
+                        background=custom_colors['info'], bordercolor=custom_colors['border'], 
+                        focuscolor=custom_colors['border']) # Outline border color and Focus ring color
 
+    #----------------------------------------------------------------------------
+        # Heading 7 (Comboboxes)
+        style.configure('H4.TCombobox', font=(BODY_FONT, -16))
 
+        # Combobox styling overrides (had to google)
+        style.map('H4.TCombobox', # State Maps: This explicitly overrides operating system states to ensure it preserves the custom colours
+            fieldbackground=[('readonly', custom_colors['light']), ('disabled', custom_colors['light'])],
+            foreground=[('readonly', custom_colors['fg']), ('disabled', custom_colors['fg'])],
+            selectbackground=[('readonly', custom_colors['light'])], # Keeps the selection block clean inside the field
+            selectforeground=[('readonly', custom_colors['fg'])])
+        # Popup colour overrides
+        self.option_add('*TCombobox*Listbox.font', (BODY_FONT, -16)) # Changes the dropdown list font to match the combobox design
+        def on_dropdown_popdown(event): # Register a class binding for every Combobox that manually forces the inner sub-listbox to accept custom colours
+            popdown = event.widget.tk.call('ttk::combobox::PopdownWindow', event.widget) # !!!
+            listbox = popdown + '.f.l'
+            # Directly configure the underlying Tk graphic properties
+            event.widget.tk.call(listbox, 'configure', '-background', custom_colors['light']) # Background color of the open dropdown menu list
+            event.widget.tk.call(listbox, 'configure', '-foreground', custom_colors['primary']) # Text color of the unselected options inside the dropdown menu list
+            event.widget.tk.call(listbox, 'configure', '-selectbackground', custom_colors['secondary']) # Highlight background color when you hover or arrow key down over an item
+            event.widget.tk.call(listbox, 'configure', '-selectforeground', custom_colors['primary']) # Text color of the currently highlighted/selected option item
+        self.bind_class('TCombobox', '<Map>', on_dropdown_popdown)  # Apply a listener configuration to all comboboxes instantiated
 
+    #---------------------------------------------------------------------------
+        #Tabs
+        '''style.configure('TNotebook', background=custom_colors['bg'], borderwidth=0) # Styling the main background wrapper of the notebook container
+        style.configure('TNotebook.Tab', # Styling the tab headers
+                        background=custom_colors['secondary'], 
+                        foreground=custom_colors['primary'], 
+                        padding=[15, 6], 
+                        font=(BODY_FONT,'bold'), #might need to remove 'bold', it gave an error with the comboboxes earlier
+                        borderwidth=1,
+                        bordercolor=custom_colors['border'])
+        style.map('TNotebook.Tab', background=[('selected', custom_colors['light']), # tab color
+                    ('active', custom_colors['active'])], # Hovered tab color
+                foreground=[('selected', custom_colors['primary']),   # Active tab text color
+                    ('active', custom_colors['fg'])]) # Hovered tab text color'''
+        # Create a custom notebook style targeting the bottom orientation
+        style.configure('bottomtab.TNotebook', 
+                        background=custom_colors['bg'], 
+                        tabposition='s',               # 's' stands for South (bottom)
+                        borderwidth=0)
+        
+        # Style the tab header buttons at the bottom
+        style.configure('bottomtab.TNotebook.Tab', 
+                        background=custom_colors['secondary'], 
+                        foreground=custom_colors['primary'], 
+                        padding=[15, 6], 
+                        font=(BODY_FONT, 10, 'bold'),
+                        borderwidth=1,
+                        bordercolor=custom_colors['bg'])
+        
+        # Preserve color map changes for the bottom tab headers
+        style.map('bottomtab.TNotebook.Tab', 
+                    background=[
+                    ('selected', custom_colors['light']), 
+                    ('active', custom_colors['active'])
+                ], 
+                foreground=[
+                    ('selected', custom_colors['primary']), 
+                    ('active', custom_colors['fg'])
+                ])
 
+#------------------------------------------------------------------------------
 
     # write navigation functions here (idk if they should be inside or outside of class?)
     def switch_screen(self, new_screen_class):
