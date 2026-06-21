@@ -108,23 +108,24 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
 
     #---------------------------------------------------------------------------
         #Tabs
-        '''style.configure('TNotebook', background=custom_colors['bg'], borderwidth=0) # Styling the main background wrapper of the notebook container
-        style.configure('TNotebook.Tab', # Styling the tab headers
-                        background=custom_colors['secondary'], 
-                        foreground=custom_colors['primary'], 
-                        padding=[15, 6], 
-                        font=(BODY_FONT,'bold'), #might need to remove 'bold', it gave an error with the comboboxes earlier
-                        borderwidth=1,
-                        bordercolor=custom_colors['border'])
-        style.map('TNotebook.Tab', background=[('selected', custom_colors['light']), # tab color
-                    ('active', custom_colors['active'])], # Hovered tab color
-                foreground=[('selected', custom_colors['primary']),   # Active tab text color
-                    ('active', custom_colors['fg'])]) # Hovered tab text color'''
+        
         # Create a custom notebook style targeting the bottom orientation
         style.configure('bottomtab.TNotebook', 
                         background=custom_colors['bg'], 
-                        tabposition='s',               # 's' stands for South (bottom)
-                        borderwidth=0)
+                        tabposition='s',
+                        borderwidth=0,
+                        highlightthickness=0,
+                        lightcolor=custom_colors['bg'],
+                        darkcolor=custom_colors['bg'],
+                        bordercolor=custom_colors['bg'])
+        
+        style.layout('bottomtab.TNotebook.Tab', [
+            ('Notebook.tab', {'sticky': 'nswe', 'children': [
+                ('Notebook.padding', {'side': 'top', 'sticky': 'nswe', 'children': [
+                    ('Notebook.label', {'side': 'top', 'sticky': ''})
+                ]})
+            ]})
+        ])
         
         # Style the tab header buttons at the bottom
         style.configure('bottomtab.TNotebook.Tab', 
@@ -132,18 +133,32 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
                         foreground=custom_colors['primary'], 
                         padding=[15, 6], 
                         font=(BODY_FONT, 10, 'bold'),
-                        borderwidth=1,
+                        borderwidth=0,
+                        focuscolor=custom_colors['bg'],
                         bordercolor=custom_colors['bg'])
         
         # Preserve color map changes for the bottom tab headers
         style.map('bottomtab.TNotebook.Tab', 
                     background=[
-                    ('selected', custom_colors['light']), 
+                    ('selected', custom_colors['primary']), 
                     ('active', custom_colors['active'])
                 ], 
                 foreground=[
-                    ('selected', custom_colors['primary']), 
+                    ('selected', custom_colors['light']), 
                     ('active', custom_colors['fg'])
+                ],
+                bordercolor=[
+                    ('selected', custom_colors['bg']),
+                    ('active', custom_colors['bg']),
+                    ('focus', custom_colors['bg'])
+                ],
+                lightcolor=[
+                    ('selected', custom_colors['bg']),
+                    ('focus', custom_colors['bg'])
+                ],
+                darkcolor=[
+                    ('selected', custom_colors['bg']),
+                    ('focus', custom_colors['bg'])
                 ])
 
 #------------------------------------------------------------------------------

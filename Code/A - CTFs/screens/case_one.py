@@ -52,20 +52,20 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
         # create a button
         self.button_try = ttk.Button(self, text="Submit", style="H6.TButton", command=self.on_submit_click) #link to command!!!
-        self.button_try.place(x=935, y=545, width=220, height=52) # allows exact placement
+        self.button_try.place(x=915, y=545, width=220, height=52) # allows exact placement
 
-        # ---------------------------------------------------------------------
+        # ---------------------------------------------------------------------!!!
 
         self.notebook = ttk.Notebook(self, style='bottomtab.TNotebook')
-        self.notebook.place(x=720, y=150, width=580, height=350)
+        self.notebook.place(x=720, y=120, width=580, height=350)
         
-        # Instantiate your tab frames inside the notebook container
-        self.tab_metadata = MapDisplayTab(self.notebook)
+        # Instantiate the tab frames inside the notebook container
+        self.tab_metadata = metaDataTab(self.notebook)
         self.tab_noise = ttk.Frame(self.notebook, style='TFrame')
         self.tab_clone = ttk.Frame(self.notebook, style='TFrame')
         self.tab_error = ttk.Frame(self.notebook, style='TFrame')
         
-        # Mount them as bottom tabs matching your design names
+        # Mount them as bottom tabs (to match the mockup)
         self.notebook.add(self.tab_metadata, text="Meta Data")
         self.notebook.add(self.tab_noise, text="Noise Analysis")
         self.notebook.add(self.tab_clone, text="Clone Detection")
@@ -79,14 +79,15 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
 #--------------------------------------------
 
-class MapDisplayTab(ttk.Frame): #will need to create for each tab
+class metaDataTab(ttk.Frame): #will need to create for each tab
     """The workspace view that displays inside the 'Meta Data' notebook tab."""
     def __init__(self, parent):
         super().__init__(parent, style='TFrame')
         
-        lbl = ttk.Label(self, text="GPS Navigation Target Context", style='H3.TLabel')
-        lbl.pack(anchor=NW, padx=15, pady=15)
+        #lbl = ttk.Label(self, text="GPS Navigation Target Context", style='H3.TLabel')
+        #lbl.pack(anchor=NW, padx=15, pady=15) (a title but not needed)
         
-        self.console = ScrolledText(self, padding=5, autohide=True)
-        self.console.pack(fill=BOTH, expand=True, padx=15, pady=(0, 15))
-        self.console.insert(END, "Awaiting submission execution data...") #change
+        self.console = ScrolledText(self, padding=5, autohide=True, )
+        self.console.pack(fill=BOTH, expand=True, padx=15, pady=(0, 10))
+        
+        self.console.insert(END, "Awaiting submission execution data...") #change (this is the default display)
