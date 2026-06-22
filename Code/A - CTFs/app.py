@@ -39,7 +39,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
             'primary': '#46403A',
             'secondary': '#D7C4AC',
             'success': "#61daae", 
-            'info': '#A2B9CB', # name as border
+            'info': '#A2B9CB', # same as border
             'warning': '#f6c23e', # might not need to change?
             'danger': '#B3261E',
             'light': '#FFF6EB',
