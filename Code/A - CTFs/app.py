@@ -15,7 +15,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
     def __init__(self):
         super().__init__(title="User Module Access", size=(1366, 768))
 
-        #variables defined inside app class, therefore references as "app.___"
+        # variables defined inside app class, therefore references as "app.___"
         self.base_dir = Path(__file__).resolve().parent #references the "relative folder"!!!
         self.data_dir = self.base_dir / "data" #act like global variables but are only defined once
 
@@ -28,12 +28,12 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         self.container = ttk.Frame(self) # in case future errors occur, ttk could be change to tb which is a more universal abbreviation
         self.container.pack(fill="both", expand=True)
 
-        # initialize initial screen display !!! change to homescreen!
+        # initialize initial screen display !!! change to homescreen when created!
         self.current_screen = challengeScreenOne(self.container)
         self.current_screen.pack(fill="both", expand=True)
 
     def setup_custom_theme(self): # custom colouring is defined to match the mockups in a method
-        # Creates and applies the global color set application-wide
+        # creates and applies the global color set application-wide
         style = ttk.Style()
         custom_colors = {
             'primary': '#46403A',
