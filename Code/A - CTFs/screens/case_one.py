@@ -12,7 +12,7 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
         SCREENS_DIR = Path(__file__).resolve().parent
         DATA_DIR = SCREENS_DIR.parent / "data"
 
-        image_names = ["errorLevel", "luminanceGradient", "differenceAnalysis"]
+        image_names = ["errorLevel", "luminanceGradient", "differenceAnalysis", "imageInfo"]
         
         # Initialize an empty dictionary
         self.icons = {}
@@ -46,17 +46,17 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
         self.no2 = ttk.Label(self, text="2)", style="H2.TLabel", anchor='w')
         self.no2.place(x=30, y=360, width=40, height=70)
-        self.question2 = ttk.Label(self, text="Question Number Two", style="H3.TLabel", anchor='w')
+        self.question2 = ttk.Label(self, text="What section of the screen has inconsistencies?", style="H3.TLabel", anchor='w')
         self.question2.place(x=70, y=360, width=640, height=70) #+80 in y
 
         self.no3 = ttk.Label(self, text="3)", style="H2.TLabel", anchor='w')
         self.no3.place(x=30, y=440, width=40, height=70)
-        self.question3 = ttk.Label(self, text="What are the colours of the added objects?", style="H3.TLabel", anchor='w')
+        self.question3 = ttk.Label(self, text="???", style="H3.TLabel", anchor='w')
         self.question3.place(x=70, y=440, width=640, height=70)
 
         self.no4 = ttk.Label(self, text="4)", style="H2.TLabel", anchor='w')
         self.no4.place(x=30, y=520, width=40, height=70)
-        self.question4 = ttk.Label(self, text="Question Number Four", style="H3.TLabel", anchor='w')
+        self.question4 = ttk.Label(self, text="What are the colours of the added objects?", style="H3.TLabel", anchor='w')
         self.question4.place(x=70, y=520, width=640, height=70)
 
         #comboboxes
@@ -78,22 +78,23 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
         self.notebook = ttk.Notebook(self, style='bottomtab.TNotebook')
         self.notebook.place(x=720, y=100, width=580, height=390)
         
-        self.tab_metadata = ImageTab(self.notebook, self.icons["differenceAnalysis"], # CHANGE IMAGE, maybe to include the original image rather than metadata? could be a mini info screen?
-        "Figure 1.1: ???.")
+
+        self.tab_luminance = ImageTab(self.notebook, self.icons["luminanceGradient"],
+        "Figure 1.1: Areas with inconsistent noise patterns.")
 
         self.tab_error = ImageTab(self.notebook, self.icons["errorLevel"],
         "Figure 1.2: Error level analysis output.")
 
-        self.tab_luminance = ImageTab(self.notebook, self.icons["luminanceGradient"],
-        "Figure 1.3: Areas with inconsistent noise patterns.")
-
         self.tab_difference = ImageTab(self.notebook, self.icons["differenceAnalysis"],
-        "Figure 1.4: Visualizing structural file discrepancies.")
+        "Figure 1.3: Visualizing structural file discrepancies.")
 
-        self.notebook.add(self.tab_metadata, text=" Meta Data ") # spaces act as internal button padding
-        self.notebook.add(self.tab_error, text=" Error Level Analysis ")
+        self.tab_info = ImageTab(self.notebook, self.icons["imageInfo"],
+        "Figure 1.4: Additional background information.")
+
         self.notebook.add(self.tab_luminance, text=" Luminance Gradient ")
+        self.notebook.add(self.tab_error, text=" Error Level Analysis ")
         self.notebook.add(self.tab_difference, text=" Difference Analysis ")
+        self.notebook.add(self.tab_info, text="  Image Info  ") # spaces act as internal button padding
 
 #--------------------------------------------
 
