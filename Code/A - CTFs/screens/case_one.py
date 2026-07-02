@@ -33,15 +33,18 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
         #---------------------------------
 
         self.title = ttk.Label(self, text="Metadata Analysis | Case 1", style="H1.TLabel", anchor='w') # change the heading to forensics cause more so image forensics than metadata now?
-        self.title.place(x=30, y=30)
+        self.title.place(x=30, y=40)
 
         self.explain = ttk.Label(self, text="""The first challenges revolves around the idea of forensic analysis. This challenge features four screens which can be viewed by clicking the labels on the right, and each question will correspond primarily to the figure with the same number.\n~
-Luminance Gradient | shows variations in brightness (luminance) across an image to expose physical inconsistencies - this helps identify objects which are copy-pasted into an image
-Figure 1.2 ~ Error level analysis output.
-Difference Analysis | ???
-Imate Info | ???""", #might remove?
+Figure 1.1 ~ Helps identify altered objects by showing inconsistent noise patterns.
+Figure 1.2 ~ Helps expose pasted objects as they glow brighter than the original image.
+Figure 1.3 ~ Helps highlight altered objects by visualizing hidden file changes.
+Figure 1.4 ~ Additional background information.""", 
                                 style="H4.TLabel", anchor='w', justify="left", wraplength=680)
-        self.explain.place(x=30, y=100) #might move questions up and extend notebook height for text? ADD EXPLAIN
+        self.explain.place(x=30, y=120)
+        #question title
+        self.no1 = ttk.Label(self, text="Questions", style="H2-2.TLabel", anchor='w')
+        self.no1.place(x=30, y=275, width=150, height=70)
 
         # questions and numbers
         self.no1 = ttk.Label(self, text="1)", style="H2.TLabel", anchor='w')
@@ -52,7 +55,7 @@ Imate Info | ???""", #might remove?
 
         self.no2 = ttk.Label(self, text="2)", style="H2.TLabel", anchor='w')
         self.no2.place(x=30, y=410, width=40, height=70)
-        self.question2 = ttk.Label(self, text="What section of the screen shows inconsistencies?", style="H3.TLabel", anchor='w',
+        self.question2 = ttk.Label(self, text="What section of the screen shows compression inconsistencies?", style="H3.TLabel", anchor='w',
                                 justify="left", wraplength=450)
         self.question2.place(x=70, y=410, width=640, height=70) #+80 in y
 
@@ -80,25 +83,25 @@ Imate Info | ???""", #might remove?
 
         # create a button
         self.button_try = ttk.Button(self, text="Submit", style="H6.TButton", command=self.on_submit_click) #link to command!!!
-        self.button_try.place(x=910, y=610, width=220, height=52) # might inverse colouring? (to match the primary and highlight as info), AND centre x once notebook is finalised
+        self.button_try.place(x=910, y=590, width=220, height=52) # might inverse colouring? (to match the primary and highlight as info), AND centre x once notebook is finalised
 
         # ---------------------------------------------------------------------!!!
 
         self.notebook = ttk.Notebook(self, style='bottomtab.TNotebook')
-        self.notebook.place(x=720, y=120, width=580, height=430)
+        self.notebook.place(x=720, y=120, width=580, height=410)
         
 
         self.tab_luminance = ImageTab(self.notebook, self.icons["luminanceGradient"],
-        "Figure 1.1 ~ Areas with inconsistent noise patterns.")
+        "Luminance Gradient | shows variations in brightness (luminance) across an image to expose physical inconsistencies")
 
         self.tab_error = ImageTab(self.notebook, self.icons["errorLevel"],
-        "Error Level Analysis (ELA) | highlights differences in image quality from saving a JPEG (compressing an image) \nThis helps expose pasted objects because they glow brighter than the rest of the picture")
+        "Error Level Analysis (ELA) | highlights differences in image quality from saving a JPEG (compressing an image)")
 
         self.tab_difference = ImageTab(self.notebook, self.icons["differenceAnalysis"],
-        "Figure 1.3 ~ Visualizing structural file discrepancies.")
+        "Difference Analysis | compares a photo against its own hidden 'original thumbnail' to reveal hidden changes")
 
         self.tab_info = ImageTab(self.notebook, self.icons["imageInfo"],
-        "Figure 1.4 ~ Additional background information.")
+        "\nImage Info | ???")
 
         self.notebook.add(self.tab_luminance, text=" Luminance Gradient ")
         self.notebook.add(self.tab_error, text=" Error Level Analysis ")

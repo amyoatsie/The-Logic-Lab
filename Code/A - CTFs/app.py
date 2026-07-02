@@ -83,9 +83,13 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         style.configure('H6.TButton', font=(BODY_FONT, -16), foreground=custom_colors['light'], 
                         background=custom_colors['info'], bordercolor=custom_colors['border'], 
                         focuscolor=custom_colors['border']) # Outline border color and Focus ring color
+        
+        # Heading 2 (The question header)
+        style.configure('H2-2.TLabel', font=(HEADING_FONT, -24), foreground=custom_colors['primary'], 
+                        background=BG_COLOR)
 
     #----------------------------------------------------------------------------
-        # Heading 7 (Comboboxes)
+        # Heading 4 (Comboboxes)
         style.configure('H4.TCombobox', font=(BODY_FONT, -16))
 
         # Combobox styling overrides (had to google)
