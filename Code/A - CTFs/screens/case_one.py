@@ -36,63 +36,63 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
         self.title.place(x=30, y=30)
 
         self.explain = ttk.Label(self, text="""The first challenges revolves around the idea of forensic analysis. This challenge features four screens which can be viewed by clicking the labels on the right, and each question will correspond primarily to the figure with the same number.\n~
-Figure 1.1 | ???
-Figure 1.2 | ??? 
-Figure 1.3 | ???
-Figure 1.4 | ???""", 
+Luminance Gradient | shows variations in brightness (luminance) across an image to expose physical inconsistencies - this helps identify objects which are copy-pasted into an image
+Figure 1.2 ~ Error level analysis output.
+Difference Analysis | ???
+Imate Info | ???""", #might remove?
                                 style="H4.TLabel", anchor='w', justify="left", wraplength=680)
         self.explain.place(x=30, y=100) #might move questions up and extend notebook height for text? ADD EXPLAIN
 
         # questions and numbers
         self.no1 = ttk.Label(self, text="1)", style="H2.TLabel", anchor='w')
-        self.no1.place(x=30, y=280, width=40, height=70)
+        self.no1.place(x=30, y=330, width=40, height=70)
         self.question1 = ttk.Label(self, text="Question Number One with a lot of extra text for testing sake. La di da. e.t.c.", style="H3.TLabel", anchor='w', 
                                 justify="left", wraplength=450)
-        self.question1.place(x=70, y=280, width=640, height=70) #406-98 for adjustment !!!
+        self.question1.place(x=70, y=330, width=640, height=70) #406-98 for adjustment !!!
 
         self.no2 = ttk.Label(self, text="2)", style="H2.TLabel", anchor='w')
-        self.no2.place(x=30, y=360, width=40, height=70)
+        self.no2.place(x=30, y=410, width=40, height=70)
         self.question2 = ttk.Label(self, text="What section of the screen shows inconsistencies?", style="H3.TLabel", anchor='w',
                                 justify="left", wraplength=450)
-        self.question2.place(x=70, y=360, width=640, height=70) #+80 in y
+        self.question2.place(x=70, y=410, width=640, height=70) #+80 in y
 
         self.no3 = ttk.Label(self, text="3)", style="H2.TLabel", anchor='w')
-        self.no3.place(x=30, y=440, width=40, height=70)
+        self.no3.place(x=30, y=490, width=40, height=70)
         self.question3 = ttk.Label(self, text="???", style="H3.TLabel", anchor='w',
                                 justify="left", wraplength=450)
-        self.question3.place(x=70, y=440, width=640, height=70)
+        self.question3.place(x=70, y=490, width=640, height=70)
 
         self.no4 = ttk.Label(self, text="4)", style="H2.TLabel", anchor='w')
-        self.no4.place(x=30, y=520, width=40, height=70)
+        self.no4.place(x=30, y=570, width=40, height=70)
         self.question4 = ttk.Label(self, text="What were the original colours of the objects which were added in the altered image?", style="H3.TLabel", anchor='w',
                                 justify="left", wraplength=450)
-        self.question4.place(x=70, y=520, width=640, height=70)
+        self.question4.place(x=70, y=570, width=640, height=70)
 
         #comboboxes
         self.userAnswer1 = ttk.Combobox(self, style="H4.TCombobox", values=question_one, state=READONLY)
-        self.userAnswer1.place(x=530, y=300, width=160, height=30)
+        self.userAnswer1.place(x=530, y=350, width=160, height=30)
         self.userAnswer2 = ttk.Combobox(self, style="H4.TCombobox", values=question_two, state=READONLY)
-        self.userAnswer2.place(x=530, y=380, width=160, height=30)
+        self.userAnswer2.place(x=530, y=430, width=160, height=30)
         self.userAnswer3 = ttk.Combobox(self, style="H4.TCombobox", values=question_three, state=READONLY)
-        self.userAnswer3.place(x=530, y=460, width=160, height=30)
+        self.userAnswer3.place(x=530, y=510, width=160, height=30)
         self.userAnswer4 = ttk.Combobox(self, style="H4.TCombobox", values=question_four, state=READONLY)
-        self.userAnswer4.place(x=530, y=540, width=160, height=30)
+        self.userAnswer4.place(x=530, y=590, width=160, height=30)
 
         # create a button
         self.button_try = ttk.Button(self, text="Submit", style="H6.TButton", command=self.on_submit_click) #link to command!!!
-        self.button_try.place(x=910, y=545, width=220, height=52) # might inverse colouring? (to match the primary and highlight as info), AND centre x once notebook is finalised
+        self.button_try.place(x=910, y=610, width=220, height=52) # might inverse colouring? (to match the primary and highlight as info), AND centre x once notebook is finalised
 
         # ---------------------------------------------------------------------!!!
 
         self.notebook = ttk.Notebook(self, style='bottomtab.TNotebook')
-        self.notebook.place(x=720, y=100, width=580, height=390)
+        self.notebook.place(x=720, y=120, width=580, height=430)
         
 
         self.tab_luminance = ImageTab(self.notebook, self.icons["luminanceGradient"],
         "Figure 1.1 ~ Areas with inconsistent noise patterns.")
 
         self.tab_error = ImageTab(self.notebook, self.icons["errorLevel"],
-        "Figure 1.2 ~ Error level analysis output.")
+        "Error Level Analysis (ELA) | highlights differences in image quality from saving a JPEG (compressing an image) \nThis helps expose pasted objects because they glow brighter than the rest of the picture")
 
         self.tab_difference = ImageTab(self.notebook, self.icons["differenceAnalysis"],
         "Figure 1.3 ~ Visualizing structural file discrepancies.")
