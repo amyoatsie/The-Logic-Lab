@@ -176,5 +176,5 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         self.current_screen = new_screen_class(self.container)
         self.current_screen.pack(fill="both", expand=True)
 
-def run(self):#method for mainloop
-    self.mainloop()
+    def run(self):#method for mainloop
+        self.mainloop()

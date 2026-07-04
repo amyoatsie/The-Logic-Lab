@@ -1,9 +1,14 @@
-from tkinter import * # imports all of tkinter?
 from ttkbootstrap.constants import * # type: ignore # This imports constants like LEFT, RIGHT, TOP, BOTTOM - hasn't really been used, remove?
 import ttkbootstrap as ttk # type: ignore
 #from ttkbootstrap.scrolled import ScrolledText - no longer used
 from PIL import Image, ImageTk
 from pathlib import Path
+
+from models.challenge_logic import ChallengeEvaluator
+from ttkbootstrap import messagebox
+from screens.popup import ResultPopup
+
+READONLY = "readonly"
 
 class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts as a modular screen page
     def __init__(self, parent):
@@ -11,6 +16,8 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
         SCREENS_DIR = Path(__file__).resolve().parent
         DATA_DIR = SCREENS_DIR.parent / "data"
+        csv_path = DATA_DIR / "progress.csv"
+        self.evaluator = ChallengeEvaluator(csv_path) # pass csv path into challenge evaluator
 
         image_names = ["errorLevel", "luminanceGradient", "differenceAnalysis", "imageInfo"]
         
@@ -25,10 +32,15 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
         #-------------------------------
         
-        question_one = ["Methods", "Literature", "Physics", "Software"] # change these lol
-        question_two = ["Top", "Middle", "Bottom"]
-        question_three = ["Cake", "Ice Cream", "Cookie", "Brownie"]
-        question_four = ["Red & Green", "Blue & Yellow", "Orange & Green", "Pink & Blue"]
+        questions_data = [ #centralised list of dictionaries to allow easier editing
+            {"text": "What does the outline around the objects primarily suggest?",
+                "options": ["Image editing", "Camera blur", "Motion blur", "AI"]},
+            {"text": "What section of the screen shows compression inconsistencies?",
+                "options": ["Top", "Middle", "Bottom"]},
+            {"text": "What does difference analysis compare?",
+                "options": ["Image to File Data", "JPEG to PNG", "Metadata to GPS"]},
+            {"text": "What were the original colours of the objects which were added in the altered image?",
+                "options": ["Red & Green", "Blue & Yellow", "Orange & Green", "Pink & Blue"]}]
 
         #---------------------------------
 
@@ -49,36 +61,36 @@ Figure 1.4 ~ Additional background information.""",
         # questions and numbers
         self.no1 = ttk.Label(self, text="1)", style="H2.TLabel", anchor='w')
         self.no1.place(x=30, y=330, width=40, height=70)
-        self.question1 = ttk.Label(self, text="Question Number One with a lot of extra text for testing sake. La di da. e.t.c.", style="H3.TLabel", anchor='w', 
+        self.question1 = ttk.Label(self, text=questions_data[0]["text"], style="H3.TLabel", anchor='w', 
                                 justify="left", wraplength=450)
-        self.question1.place(x=70, y=330, width=640, height=70) #406-98 for adjustment !!!
+        self.question1.place(x=70, y=330, width=640, height=70)
 
         self.no2 = ttk.Label(self, text="2)", style="H2.TLabel", anchor='w')
         self.no2.place(x=30, y=410, width=40, height=70)
-        self.question2 = ttk.Label(self, text="What section of the screen shows compression inconsistencies?", style="H3.TLabel", anchor='w',
+        self.question2 = ttk.Label(self, text=questions_data[1]["text"], style="H3.TLabel", anchor='w',
                                 justify="left", wraplength=450)
         self.question2.place(x=70, y=410, width=640, height=70) #+80 in y
 
         self.no3 = ttk.Label(self, text="3)", style="H2.TLabel", anchor='w')
         self.no3.place(x=30, y=490, width=40, height=70)
-        self.question3 = ttk.Label(self, text="???", style="H3.TLabel", anchor='w',
+        self.question3 = ttk.Label(self, text=questions_data[2]["text"], style="H3.TLabel", anchor='w',
                                 justify="left", wraplength=450)
         self.question3.place(x=70, y=490, width=640, height=70)
 
         self.no4 = ttk.Label(self, text="4)", style="H2.TLabel", anchor='w')
         self.no4.place(x=30, y=570, width=40, height=70)
-        self.question4 = ttk.Label(self, text="What were the original colours of the objects which were added in the altered image?", style="H3.TLabel", anchor='w',
+        self.question4 = ttk.Label(self, text=questions_data[3]["text"], style="H3.TLabel", anchor='w',
                                 justify="left", wraplength=450)
         self.question4.place(x=70, y=570, width=640, height=70)
 
         #comboboxes
-        self.userAnswer1 = ttk.Combobox(self, style="H4.TCombobox", values=question_one, state=READONLY)
+        self.userAnswer1 = ttk.Combobox(self, style="H4.TCombobox", values=questions_data[0]["options"], state=READONLY) # might move under each question?
         self.userAnswer1.place(x=530, y=350, width=160, height=30)
-        self.userAnswer2 = ttk.Combobox(self, style="H4.TCombobox", values=question_two, state=READONLY)
+        self.userAnswer2 = ttk.Combobox(self, style="H4.TCombobox", values=questions_data[1]["options"], state=READONLY)
         self.userAnswer2.place(x=530, y=430, width=160, height=30)
-        self.userAnswer3 = ttk.Combobox(self, style="H4.TCombobox", values=question_three, state=READONLY)
+        self.userAnswer3 = ttk.Combobox(self, style="H4.TCombobox", values=questions_data[2]["options"], state=READONLY)
         self.userAnswer3.place(x=530, y=510, width=160, height=30)
-        self.userAnswer4 = ttk.Combobox(self, style="H4.TCombobox", values=question_four, state=READONLY)
+        self.userAnswer4 = ttk.Combobox(self, style="H4.TCombobox", values=questions_data[3]["options"], state=READONLY)
         self.userAnswer4.place(x=530, y=590, width=160, height=30)
 
         # create a button
@@ -110,10 +122,31 @@ Figure 1.4 ~ Additional background information.""",
 
 #--------------------------------------------
 
-        # create functions/methods for the buttons inside the class?
+    # create functions/methods for the buttons inside the class?
     def on_submit_click(self): # for testing!
         print("Submit button clicked!") #add navigation? or in different folder?
+        user_selections = {
+            "q1": self.userAnswer1.get(), "q2": self.userAnswer2.get(),
+            "q3": self.userAnswer3.get(), "q4": self.userAnswer4.get()}
+
+        is_valid, error_message = self.evaluator.validate_inputs(user_selections)
     
+        if not is_valid:
+            messagebox.showwarning("Incomplete Answers", error_message)
+            return
+
+        results = self.evaluator.evaluate_answers(user_selections)
+        print(results) # testing
+        self.evaluator.save_progress("Case 1", results["score"], results["total"], results["passed"])
+
+        if results["passed"]: #temperary?
+            messagebox.showinfo("Challenge Complete", 
+                f"Congratulations!\n\nYou scored {results['score']}/{results['total']}.")
+        else:
+            messagebox.showinfo("Challenge Complete",
+                f"You scored {results['score']}/{results['total']}.\nTry again!")
+
+        # 4. EXPORT AND SAVE DATA TO CSV
 
 #--------------------------------------------
 
