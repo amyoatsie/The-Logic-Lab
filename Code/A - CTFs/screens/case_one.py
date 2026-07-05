@@ -5,14 +5,14 @@ from PIL import Image, ImageTk
 from pathlib import Path
 
 from models.challenge_logic import ChallengeEvaluator
-from ttkbootstrap import messagebox
-from screens.popup import ResultPopup
+from screens.custom_popup import ResultPopup
 
 READONLY = "readonly"
 
 class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts as a modular screen page
-    def __init__(self, parent):
+    def __init__(self, parent, app):
         super().__init__(parent) # Initialize the frame inside the parent container (app.py)
+        self.app = app
 
         SCREENS_DIR = Path(__file__).resolve().parent
         DATA_DIR = SCREENS_DIR.parent / "data"
@@ -132,7 +132,7 @@ Figure 1.4 ~ Additional background information.""",
         is_valid, error_message = self.evaluator.validate_inputs(user_selections)
     
         if not is_valid:
-            messagebox.showwarning("Incomplete Answers", error_message)
+            ResultPopup(self, "Incomplete Answers", error_message)
             return
 
         results = self.evaluator.evaluate_answers(user_selections)
@@ -140,10 +140,10 @@ Figure 1.4 ~ Additional background information.""",
         self.evaluator.save_progress("Case 1", results["score"], results["total"], results["passed"])
 
         if results["passed"]: #temperary?
-            messagebox.showinfo("Challenge Complete", 
-                f"Congratulations!\n\nYou scored {results['score']}/{results['total']}.")
+            ResultPopup(self, "Challenge Complete", 
+                f"Congratulations!\nYou scored {results['score']}/{results['total']}.")
         else:
-            messagebox.showinfo("Challenge Complete",
+            ResultPopup(self, "Challenge Complete",
                 f"You scored {results['score']}/{results['total']}.\nTry again!")
 
         # 4. EXPORT AND SAVE DATA TO CSV

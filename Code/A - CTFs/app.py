@@ -27,10 +27,12 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         # define Navigation Container (Where screens swap out) !!!
         self.container = ttk.Frame(self) # in case future errors occur, ttk could be change to tb which is a more universal abbreviation
         self.container.pack(fill="both", expand=True)
+        self.current_screen = None
+        self.show_home()
 
         # initialize initial screen display !!! change to homescreen when created!
-        self.current_screen = challengeScreenOne(self.container)
-        self.current_screen.pack(fill="both", expand=True)
+        '''self.current_screen = challengeScreenOne(self.container)
+        self.current_screen.pack(fill="both", expand=True)'''
 
     def setup_custom_theme(self): # custom colouring is defined to match the mockups in a method
         # creates and applies the global color set application-wide
@@ -89,6 +91,14 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
                         background=BG_COLOR)
 
     #----------------------------------------------------------------------------
+
+        #Home screen specific fonts
+        style.configure('HS2.TLabel', font=(HEADING_FONT, -20), foreground=custom_colors['primary'], 
+                        background=custom_colors['secondary'])
+        style.configure('HS4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], 
+                        background=custom_colors['secondary'])
+
+    #----------------------------------------------------------------------------
         # Heading 4 (Comboboxes)
         style.configure('H4.TCombobox', font=(BODY_FONT, -16))
 
@@ -98,7 +108,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
             foreground=[('readonly', custom_colors['fg']), ('disabled', custom_colors['fg'])],
             selectbackground=[('readonly', custom_colors['light'])], # Keeps the selection block clean inside the field
             selectforeground=[('readonly', custom_colors['fg'])])
-        # Popup colour overrides
+        # Dropdown colour overrides
         self.option_add('*TCombobox*Listbox.font', (BODY_FONT, -16)) # Changes the dropdown list font to match the combobox design
         def on_dropdown_popdown(event): # Register a class binding for every Combobox that manually forces the inner sub-listbox to accept custom colours
             popdown = event.widget.tk.call('ttk::combobox::PopdownWindow', event.widget) # !!!
@@ -111,7 +121,6 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         self.bind_class('TCombobox', '<Map>', on_dropdown_popdown)  # Apply a listener configuration to all comboboxes instantiated
 
     #---------------------------------------------------------------------------
-        #Tabs
         
         # Create a custom notebook style targeting the bottom orientation
         style.configure('bottomtab.TNotebook', 
@@ -167,14 +176,27 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
 
 #------------------------------------------------------------------------------
 
+    def show_home(self):
+        if self.current_screen is not None:
+            self.current_screen.destroy()
+        self.current_screen = homeScreen(self.container, self)
+        self.current_screen.pack(fill="both", expand=True)
+
+    def show_case_one(self):
+        if self.current_screen is not None:
+            self.current_screen.destroy()
+        self.current_screen = challengeScreenOne(self.container, self)
+        self.current_screen.pack(fill="both", expand=True)
+
     # write navigation functions here (idk if they should be inside or outside of class?)
-    def switch_screen(self, new_screen_class):
+    '''def switch_screen(self, new_screen_class):
         """Swaps the current screen view out cleanly for another."""
         if self.current_screen is not None:
             self.current_screen.destroy()
         
         self.current_screen = new_screen_class(self.container)
-        self.current_screen.pack(fill="both", expand=True)
+        self.current_screen.pack(fill="both", expand=True)''' #original
+
 
     def run(self):#method for mainloop
         self.mainloop()
