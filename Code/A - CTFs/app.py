@@ -124,6 +124,10 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         self.bind_class('TCombobox', '<Map>', on_dropdown_popdown)  # Apply a listener configuration to all comboboxes instantiated
 
     #---------------------------------------------------------------------------
+
+        style.configure("Card.TFrame", background=style.colors.secondary, borderwidth=1, relief="solid")
+
+    #---------------------------------------------------------------------------
         
         # Create a custom notebook style targeting the bottom orientation
         style.configure('bottomtab.TNotebook', 
@@ -203,3 +207,4 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
 
     def run(self):#method for mainloop
         self.mainloop()
+
