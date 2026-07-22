@@ -76,3 +76,19 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         self.button_continue.place(x=910, y=590, width=220, height=52) # might inverse colouring? (to match the primary and highlight as info), AND centre x once notebook is finalised
 
         # ---------------------------------------------------------------------!!!
+
+        self.overall = ttk.Label(self, text=" OVERALL PROGRESS", style="HS5.TLabel", anchor='nw')
+        self.overall.place(x=30, y=120, width=680, height=90)
+
+        # ---------------------------------------------------------------------!!!
+
+        self.continue_last = ttk.Label(self, text="", style="HS5.TLabel", anchor='nw')
+        self.continue_last.place(x=30, y=120, width=680, height=90)
+
+        # ---------------------------------------------------------------------!!!
+
+        self.profile_settings = ttk.Label(self, text="", style="HS5.TLabel", anchor='nw')
+        self.profile_settings.place(x=740, y=60, width=525, height=110)
+
+
+        #CRUD!!!

@@ -94,8 +94,11 @@ Figure 1.4 ~ Additional background information.""",
         self.userAnswer4.place(x=530, y=590, width=160, height=30)
 
         # create a button
-        self.button_try = ttk.Button(self, text="Submit", style="H6.TButton", command=self.on_submit_click) #link to command!!!
-        self.button_try.place(x=910, y=590, width=220, height=52) # might inverse colouring? (to match the primary and highlight as info), AND centre x once notebook is finalised
+        self.submit_button = ttk.Button(self, text="Submit", style="H6.TButton", command=self.on_submit_click) #Link the submit_button to the relevant command
+        self.submit_button.place(x=910, y=590, width=220, height=52) # centre x once notebook is finalised
+
+        self.home_button = ttk.Button(self, text="Home", style="H6.TButton", command=self.app.show_home) #return to home?
+        self.home_button.place(x=1190, y=30, width=80, height=45) 
 
         # ---------------------------------------------------------------------!!!
 
@@ -122,7 +125,7 @@ Figure 1.4 ~ Additional background information.""",
 
 #--------------------------------------------
 
-    # create functions/methods for the buttons inside the class?
+    # create functions/methods for the buttons inside the class? - should i move this to app or something else?
     def on_submit_click(self): # for testing!
         print("Submit button clicked!") #add navigation? or in different folder?
         user_selections = {
@@ -147,6 +150,12 @@ Figure 1.4 ~ Additional background information.""",
                 f"You scored {results['score']}/{results['total']}.\nTry again!")
 
         # 4. EXPORT AND SAVE DATA TO CSV
+
+#--------------------------------------------
+
+    # home button
+    #def on_home_click(self):
+
 
 #--------------------------------------------
 

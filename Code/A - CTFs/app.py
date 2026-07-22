@@ -82,10 +82,11 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         style.configure('H5.TLabel', font=(BODY_FONT, -14), foreground=custom_colors['primary'], 
                         background=BG_COLOR)
         # Heading 6 (Buttons)
-        style.configure('H6.TButton', font=(BODY_FONT, -16), foreground=custom_colors['light'], 
-                        background=custom_colors['info'], bordercolor=custom_colors['border'], 
-                        focuscolor=custom_colors['border']) # Outline border color and Focus ring color
-        
+        style.configure('H6.TButton', font=(BODY_FONT, -16), foreground=style.colors.light, 
+                        background=style.colors.primary, bordercolor=style.colors.border, 
+                        focuscolor=style.colors.border)
+        style.map('H6.TButton', foreground=[('active', style.colors.light)], background=[('active', style.colors.info)])
+
         # Heading 2 (The question header)
         style.configure('H2-2.TLabel', font=(HEADING_FONT, -24), foreground=custom_colors['primary'], 
                         background=BG_COLOR)
@@ -96,6 +97,8 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         style.configure('HS2.TLabel', font=(HEADING_FONT, -20), foreground=custom_colors['primary'], 
                         background=custom_colors['secondary'])
         style.configure('HS4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], 
+                        background=custom_colors['secondary'])
+        style.configure('HS5.TLabel', font=(HEADING_FONT, -14), foreground=custom_colors['primary'], 
                         background=custom_colors['secondary'])
 
     #----------------------------------------------------------------------------
