@@ -1,8 +1,12 @@
+import sys
+from pathlib import Path
+if str(Path(__file__).resolve().parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from ttkbootstrap.constants import * # type: ignore # This imports constants like LEFT, RIGHT, TOP, BOTTOM
 import ttkbootstrap as ttk # type: ignore 
-from pathlib import Path
 from models.challenge_logic import ChallengeEvaluator
-#from screens.custom_popup import ResultPopup
+from screens.custom_popup import ResultPopup
 
 READONLY = "readonly"
 
@@ -14,6 +18,7 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         SCREENS_DIR = Path(__file__).resolve().parent
         DATA_DIR = SCREENS_DIR.parent / "data"
         csv_path = DATA_DIR / "progress.csv"
+        self.config_path = DATA_DIR / "config.txt"
         self.evaluator = ChallengeEvaluator(csv_path) # pass csv path into challenge evaluator
 
     #---------------------------------
@@ -21,7 +26,6 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         # Parse (NOT PASS LMAO) highest successfully completed case number from csv file
         self.completed_cases = self.get_completed_cases_from_csv(csv_path)
         self.total_challenges = 4
-
         self.completed_count = len(self.completed_cases)
         
         # Determine current target case (with an index)
@@ -45,9 +49,67 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
                 "description": "Phishing, impersonation, & manipulation tactics"},
             {"id": 4, "title": "Case 04 | Cryptography",
                 "description": "Encryption, hashing, & secure communication"}]
-        
+    
+        active_idx = self.current_case_id - 1
+        self.current_case_title = self.case_definitions[active_idx]["title"]
+        self.current_case_sub_progress = 0 
+        self.max_sub_challenges = 4
+    
+        # Load user settings file profile configuration parameters
+        self.username_var = ttk.StringVar()
+        self.auth_btn_var = ttk.StringVar()
+
+        self.update_profile_variables()
+
         self.create_widgets()
 
+    def update_profile_variables(self):
+        """Updates text values dynamically based on config.txt contents."""
+        saved_name = self.load_username()
+        if saved_name:
+            self.username_var.set(f"Welcome Back, {saved_name}")
+            self.auth_btn_var.set("Sign Out")
+        else:
+            self.username_var.set("Welcome to Logic Lab, Guest")
+            self.auth_btn_var.set("Sign In")
+
+    def load_username(self):
+        """Loads user configuration profile preferences."""
+        if self.config_path.exists():
+            try:
+                name = self.config_path.read_text().strip()
+                return name if name else None
+            except Exception:
+                pass
+        return None
+    
+    def handle_auth_action(self):
+        """Toggles login state using the custom project popup window platform framework."""
+        if self.load_username():
+            # Sign Out logic: clear file contents and reset variables
+            try:
+                if self.config_path.exists():
+                    self.config_path.write_text("") 
+            except Exception:
+                pass
+            self.update_profile_variables()
+        else:
+            # Sign In logic: launch your custom text entry popup window
+            popup = ResultPopup(
+                parent=self,
+                title="System Login",
+                message="Enter your username or undercover alias:",
+                button_text="Submit",
+                show_input=True
+            )
+            # Save name if user provided a valid input string
+            if popup.user_input_value:
+                try:
+                    self.config_path.parent.mkdir(parents=True, exist_ok=True)
+                    self.config_path.write_text(popup.user_input_value)
+                except Exception:
+                    pass
+                self.update_profile_variables()
 
     def get_completed_cases_from_csv(self, path):
         """Reads the progress file to track successful cases."""
@@ -72,11 +134,11 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
     #---------------------------------
 
     def create_widgets(self):
-        self.title = ttk.Label(self, text="Welcome Back, _____", style="H1.TLabel", anchor='w') # add username input!!!
+        self.title = ttk.Label(self, textvariable=self.username_var, style="H1.TLabel") # add username input!!!
         self.title.place(x=30, y=40)
 
         progress = ttk.Frame(self, style="Card.TFrame", padding=15)
-        progress.place(x=30, y=110, width=650, height=120)
+        progress.place(x=30, y=120, width=650, height=120)
 
         ttk.Label(progress, text="OVERALL PROGRESS", style="HS5.TLabel").pack(anchor="w")
 
@@ -95,7 +157,7 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         self.create_profile_card()
 
         # Case Cards Setup Loop
-        start_y = 260
+        start_y = 270
         for config in self.case_definitions:
             if config["id"] in self.completed_cases:
                 status = "Completed"
@@ -110,7 +172,7 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     def create_continue_card(self):
         frame = ttk.Frame(self, style="Card.TFrame", padding=15)
-        frame.place(x=730, y=40, width=580, height=170)
+        frame.place(x=720, y=120, width=550, height=170)
 
         ttk.Label(frame, text="CONTINUE LAST CHALLENGE", style="HS5.TLabel").pack(anchor="w")
         ttk.Label(frame, text=self.current_case_title, style="H3.TLabel").pack(anchor="w", pady=(10,0))
@@ -132,15 +194,27 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     def create_profile_card(self):
         frame = ttk.Frame(self, style="Card.TFrame", padding=15)
-        frame.place(x=730, y=240, width=580, height=140)
+        frame.place(x=720, y=300, width=550, height=80)
 
-        ttk.Label(frame, text="PROFILE SETTINGS", style="HS5.TLabel").pack(anchor="w")
+        ttk.Label(frame, text="PROFILE SETTINGS", style="HS5.TLabel").place(x=15, y=14)
 
-        button_frame = ttk.Frame(frame, style="Card.TFrame")
-        button_frame.pack(fill=X, pady=20)
+        # This allows the button to change between "Sign In" and "Sign Out" dynamically.
+        self.auth_btn = ttk.Button(
+            frame, 
+            textvariable=self.auth_btn_var, 
+            style="H6.TButton", 
+            command=self.handle_auth_action
+        )
+        self.auth_btn.place(x=235, y=8, width=120, height=35)
 
-        ttk.Button(button_frame, text="Sign Out", style="H6.TButton").pack(side=LEFT)
-        ttk.Button(button_frame, text="Reset Progress", style="H6.TButton").pack(side=RIGHT)
+        reset_btn = ttk.Button(
+            frame, 
+            text="Reset Progress", 
+            style="H6.TButton"
+        )
+        reset_btn.place(x=375, y=8, width=135, height=35)
+
+        #ttk.Button(button_frame, text="Reset Progress", style="H6.TButton").pack(side=RIGHT)
 
 class CaseCard(ttk.Frame):
     def __init__(self, parent, data, status):
