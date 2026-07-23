@@ -15,27 +15,29 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
     def __init__(self):
         super().__init__(title="User Module Access", size=(1366, 768))
 
-        # variables defined inside app class, therefore references as "app.___"
+        # Variables defined inside app class, therefore references as "app.___"
         self.base_dir = Path(__file__).resolve().parent #references the "relative folder"!!!
         self.data_dir = self.base_dir / "data" #act like global variables but are only defined once
 
         self.setup_custom_theme() # injects global style engine profile
 
-        # define repos
+        # define repos ???
         # e.g. self.challenge_repo = ChallengeRepoCsv(self.data_dir / "progress.csv")
 
-        # define Navigation Container (Where screens swap out) !!!
+        # Define Navigation Container (Where screens swap out) !!!
         self.container = ttk.Frame(self) # in case future errors occur, ttk could be change to tb which is a more universal abbreviation
         self.container.pack(fill="both", expand=True)
         self.current_screen = None
         self.show_home()
 
-        # initialize initial screen display !!! change to homescreen when created!
+        # Initialise initial screen display !!! change to homescreen when created!
         '''self.current_screen = challengeScreenOne(self.container)
         self.current_screen.pack(fill="both", expand=True)'''
 
-    def setup_custom_theme(self): # custom colouring is defined to match the mockups in a method
-        # creates and applies the global color set application-wide
+    #----------------------------------------------------------------------------
+
+    def setup_custom_theme(self): # Custom colouring is defined to match the mockups in a method
+        # Creates and applies the global color set application-wide
         style = ttk.Style()
         custom_colors = {
             'primary': '#46403A',
@@ -66,6 +68,8 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         BODY_FONT = "Roboto" # Main text font defined as a constant
         BG_COLOR = custom_colors['bg']
 
+    #----------------------------------------------------------------------------
+
         # Heading 1 (The main header)
         style.configure('H1.TLabel', font=(HEADING_FONT, -48), foreground=custom_colors['primary'], 
                         background=BG_COLOR)
@@ -93,7 +97,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
 
     #----------------------------------------------------------------------------
 
-        #Home screen specific fonts
+        # Home screen specific fonts
         style.configure('HS2.TLabel', font=(HEADING_FONT, -20), foreground=custom_colors['primary'], 
                         background=custom_colors['secondary'])
         style.configure('HS4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], 
@@ -106,13 +110,13 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         style.configure('H4.TCombobox', font=(BODY_FONT, -16))
 
         # Combobox styling overrides (had to google)
-        style.map('H4.TCombobox', # State Maps: This explicitly overrides operating system states to ensure it preserves the custom colours
+        style.map('H4.TCombobox', # State Maps: explicitly override operating system states to ensure it preserves the custom colours
             fieldbackground=[('readonly', custom_colors['light']), ('disabled', custom_colors['light'])],
             foreground=[('readonly', custom_colors['fg']), ('disabled', custom_colors['fg'])],
-            selectbackground=[('readonly', custom_colors['light'])], # Keeps the selection block clean inside the field
+            selectbackground=[('readonly', custom_colors['light'])], 
             selectforeground=[('readonly', custom_colors['fg'])])
         # Dropdown colour overrides
-        self.option_add('*TCombobox*Listbox.font', (BODY_FONT, -16)) # Changes the dropdown list font to match the combobox design
+        self.option_add('*TCombobox*Listbox.font', (BODY_FONT, -16)) # Change the dropdown list font to match the combobox design
         def on_dropdown_popdown(event): # Register a class binding for every Combobox that manually forces the inner sub-listbox to accept custom colours
             popdown = event.widget.tk.call('ttk::combobox::PopdownWindow', event.widget) # !!!
             listbox = popdown + '.f.l'
@@ -121,7 +125,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
             event.widget.tk.call(listbox, 'configure', '-foreground', custom_colors['primary']) # Text color of the unselected options inside the dropdown menu list
             event.widget.tk.call(listbox, 'configure', '-selectbackground', custom_colors['secondary']) # Highlight background color when you hover or arrow key down over an item
             event.widget.tk.call(listbox, 'configure', '-selectforeground', custom_colors['primary']) # Text color of the currently highlighted/selected option item
-        self.bind_class('TCombobox', '<Map>', on_dropdown_popdown)  # Apply a listener configuration to all comboboxes instantiated
+        self.bind_class('TCombobox', '<Map>', on_dropdown_popdown)  
 
     #---------------------------------------------------------------------------
 
@@ -129,7 +133,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
 
     #---------------------------------------------------------------------------
         
-        # Create a custom notebook style targeting the bottom orientation
+        # Create a custom notebook style targeting the bottom orientation of the notebook
         style.configure('bottomtab.TNotebook', 
                         background=custom_colors['bg'], 
                         tabposition='s',
@@ -181,7 +185,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
                     ('focus', custom_colors['bg'])
                 ])
 
-#------------------------------------------------------------------------------
+    #------------------------------------------------------------------------------
 
     def show_home(self):
         if self.current_screen is not None:
@@ -189,22 +193,16 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         self.current_screen = homeScreen(self.container, self)
         self.current_screen.pack(fill="both", expand=True)
 
+    #----------------------------------------------------------------------------
+
     def show_case_one(self):
         if self.current_screen is not None:
             self.current_screen.destroy()
         self.current_screen = challengeScreenOne(self.container, self)
         self.current_screen.pack(fill="both", expand=True)
 
-    # write navigation functions here (idk if they should be inside or outside of class?)
-    '''def switch_screen(self, new_screen_class):
-        """Swaps the current screen view out cleanly for another."""
-        if self.current_screen is not None:
-            self.current_screen.destroy()
-        
-        self.current_screen = new_screen_class(self.container)
-        self.current_screen.pack(fill="both", expand=True)''' #original
+    #----------------------------------------------------------------------------
 
-
-    def run(self):#method for mainloop
+    def run(self):# Method for mainloop
         self.mainloop()
 

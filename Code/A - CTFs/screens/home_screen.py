@@ -19,9 +19,9 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         DATA_DIR = SCREENS_DIR.parent / "data"
         csv_path = DATA_DIR / "progress.csv"
         self.config_path = DATA_DIR / "config.txt"
-        self.evaluator = ChallengeEvaluator(csv_path) # pass csv path into challenge evaluator
+        self.evaluator = ChallengeEvaluator(csv_path) # Parse csv path into challenge evaluator
 
-    #---------------------------------
+    #----------------------------------------------------------------------------
 
         # Parse (NOT PASS LMAO) highest successfully completed case number from csv file
         self.completed_cases = self.get_completed_cases_from_csv(csv_path)
@@ -38,9 +38,9 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         self.current_case_sub_progress = 0 
         self.max_sub_challenges = 4
 
-    #-------------------------------
-        
-        self.case_definitions = [ #centralised list of dictionaries to allow easier editing
+    #----------------------------------------------------------------------------
+
+        self.case_definitions = [ # Centralised list of dictionaries to allow easier editing & increase readability for future development
             {"id": 1, "title": "Case 01 | Metadata Analysis",
                 "description": "Understading hidden information in files", "command": self.app.show_case_one},
             {"id": 2, "title": "Case 02 | Digital Forensic Analysis",
@@ -55,16 +55,16 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         self.current_case_sub_progress = 0 
         self.max_sub_challenges = 4
     
-        # Load user settings file profile configuration parameters
+        # Load user settings file profile
         self.username_var = ttk.StringVar()
         self.auth_btn_var = ttk.StringVar()
 
         self.update_profile_variables()
-
         self.create_widgets()
 
-    def update_profile_variables(self):
-        """Updates text values dynamically based on config.txt contents."""
+    #----------------------------------------------------------------------------
+
+    def update_profile_variables(self): # Update text values dynamically (through variables)
         saved_name = self.load_username()
         if saved_name:
             self.username_var.set(f"Welcome Back, {saved_name}")
@@ -73,8 +73,9 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             self.username_var.set("Welcome to Logic Lab, Guest")
             self.auth_btn_var.set("Sign In")
 
-    def load_username(self):
-        """Loads user configuration profile preferences."""
+    #----------------------------------------------------------------------------
+
+    def load_username(self): # Load user profile (does this actually do anything rn?)
         if self.config_path.exists():
             try:
                 name = self.config_path.read_text().strip()
@@ -82,9 +83,10 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             except Exception:
                 pass
         return None
-    
-    def handle_auth_action(self):
-        """Toggles login state using the custom project popup window platform framework."""
+
+    #----------------------------------------------------------------------------
+
+    def handle_auth_action(self): #Toggle login state using the custom project popup window
         if self.load_username():
             # Sign Out logic: clear file contents and reset variables
             try:
@@ -94,7 +96,7 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
                 pass
             self.update_profile_variables()
         else:
-            # Sign In logic: launch your custom text entry popup window
+            # Sign In logic: launch the custom text entry popup window
             popup = ResultPopup(
                 parent=self,
                 title="System Login",
@@ -102,7 +104,7 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
                 button_text="Submit",
                 show_input=True
             )
-            # Save name if user provided a valid input string
+            # Save name if user provided a valid input string (existense validation)
             if popup.user_input_value:
                 try:
                     self.config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -111,8 +113,51 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
                     pass
                 self.update_profile_variables()
 
-    def get_completed_cases_from_csv(self, path):
-        """Reads the progress file to track successful cases."""
+    #----------------------------------------------------------------------------
+
+    def handle_reset_progress(self): # Wipe progress data from the CSV while preserving the header line
+        # Use the custom ResultPopup as a confirmation dialog/popup first
+        popup = ResultPopup( #popup???
+            parent=self,
+            title="Reset Progress?",
+            message="Are you sure you want to clear your data? This will reset your progress and lock all cases except for case 1.",
+            button_text="Confirm Reset",
+            show_input=False
+        )
+        
+        # Open the progress CSV file path
+        SCREENS_DIR = Path(__file__).resolve().parent
+        DATA_DIR = SCREENS_DIR.parent / "data"
+        csv_path = DATA_DIR / "progress.csv"
+
+        if csv_path.exists(): # CRUD
+            try:
+                # Read the existing CSV file
+                with open(csv_path, "r") as file:
+                    lines = file.readlines()
+                
+                # Extract line 1 (the header string)
+                header = lines[0] if lines else "timestamp,currentChallenge,numberCorrect,questionNumber,result\n"
+                
+                # Overwrite the file ONLY keeping line 1 to wipe history entries
+                with open(csv_path, "w") as file:
+                    file.write(header)
+                
+                # Reset the local variables back to 'default' states
+                self.completed_cases = set()
+                self.completed_count = 0
+                self.current_case_id = 1
+                self.current_case_title = "Case 01 | Metadata Analysis"
+                
+                # Update the UI components to refresh the screen
+                self.create_widgets()
+                
+            except Exception as e:
+                print(f"Error resetting progress file logic tracks: {e}") # Error message
+
+    #----------------------------------------------------------------------------
+
+    def get_completed_cases_from_csv(self, path): # Read the progress CSV file to find successful cases
         completed = set()
         if not path.exists():
             return completed
@@ -131,10 +176,10 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             pass
         return completed
 
-    #---------------------------------
+    #----------------------------------------------------------------------------
 
     def create_widgets(self):
-        self.title = ttk.Label(self, textvariable=self.username_var, style="H1.TLabel") # add username input!!!
+        self.title = ttk.Label(self, textvariable=self.username_var, style="H1.TLabel")
         self.title.place(x=30, y=40)
 
         progress = ttk.Frame(self, style="Card.TFrame", padding=15)
@@ -142,17 +187,17 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
         ttk.Label(progress, text="OVERALL PROGRESS", style="HS5.TLabel").pack(anchor="w")
 
-        # Dynamically linked to total challenges completed
+        # Link to total challenges completed
         self.progress = ttk.Progressbar(progress, maximum=self.total_challenges, 
             value=self.completed_count, style="Logic.Horizontal.TProgressbar")
         self.progress.pack(fill=X, pady=12)
 
-        ttk.Label(  progress, 
+        ttk.Label(progress, 
             text=f"{self.completed_count} / {self.total_challenges} Challenges Completed", 
             style="H5.TLabel"
         ).pack(anchor="e")
 
-        # Right Panels
+        # Create right Panels
         self.create_continue_card()
         self.create_profile_card()
 
@@ -170,6 +215,8 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             card.place(x=30, y=start_y, width=650, height=80)
             start_y += 90
 
+    #----------------------------------------------------------------------------
+
     def create_continue_card(self):
         frame = ttk.Frame(self, style="Card.TFrame", padding=15)
         frame.place(x=720, y=120, width=550, height=170)
@@ -177,7 +224,7 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         ttk.Label(frame, text="CONTINUE LAST CHALLENGE", style="HS5.TLabel").pack(anchor="w")
         ttk.Label(frame, text=self.current_case_title, style="H3.TLabel").pack(anchor="w", pady=(10,0))
 
-        # Dynamic subtask progress matching active workspace step
+        # Update the progress bar to match the current completion level
         ttk.Progressbar(
             frame, 
             maximum=self.max_sub_challenges, 
@@ -192,13 +239,15 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         ttk.Button(frame, text="Continue", style="H6.TButton", 
                 command=active_command, state=btn_state).pack(anchor="w")
 
+    #----------------------------------------------------------------------------
+
     def create_profile_card(self):
         frame = ttk.Frame(self, style="Card.TFrame", padding=15)
         frame.place(x=720, y=300, width=550, height=80)
 
         ttk.Label(frame, text="PROFILE SETTINGS", style="HS5.TLabel").place(x=15, y=14)
 
-        # This allows the button to change between "Sign In" and "Sign Out" dynamically.
+        # Allow the button to change between "Sign In" and "Sign Out"
         self.auth_btn = ttk.Button(
             frame, 
             textvariable=self.auth_btn_var, 
@@ -210,15 +259,15 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         reset_btn = ttk.Button(
             frame, 
             text="Reset Progress", 
-            style="H6.TButton"
+            style="H6.TButton",
+            command=self.handle_reset_progress
         )
         reset_btn.place(x=375, y=8, width=135, height=35)
 
-        #ttk.Button(button_frame, text="Reset Progress", style="H6.TButton").pack(side=RIGHT)
+    #----------------------------------------------------------------------------
 
 class CaseCard(ttk.Frame):
     def __init__(self, parent, data, status):
-        # Added explicit Card style here to fix the missing background color
         super().__init__(parent, padding=10, style="Card.TFrame")
 
         ttk.Label(self, text=data["title"], style="HS2.TLabel", wraplength=380).place(x=15, y=5)
@@ -226,11 +275,11 @@ class CaseCard(ttk.Frame):
 
         btn_command = data.get("command", None)
 
-        # Unified single conditional tracking for label text and button status
+        # Conditional tracking for label text (sign in vs out) and button status
         if status == "Completed":
             btn_text = "Review"
             btn_state = NORMAL if btn_command else DISABLED
-            status_text = "Completed"
+            status_text = "Completed" # maybe remove?
             status_x = 400
         elif status == "Unlocked":
             btn_text = "Start"
@@ -254,59 +303,3 @@ class CaseCard(ttk.Frame):
             btn.place(x=495, y=18, width=120, height=35)
 
         ttk.Label(self, text=status_text, style="HS4.TLabel").place(x=status_x, y=24)
-
-
-        '''# questions and numbers (tooooo messy)
-        self.no1 = ttk.Label(self, text="1)", style="H2.TLabel", anchor='w') #add symbols???
-        self.no1.place(x=30, y=330, width=40, height=70)
-        self.case1 = ttk.Label(self, text=case_data[0]["title"], style="HS2.TLabel", anchor='nw', #add upper padding
-                                justify="left", wraplength=450)
-        self.case1.place(x=70, y=330, width=640, height=70)
-        self.description1 = ttk.Label(self, text=case_data[0]["text"], style="HS4.TLabel", anchor='w')
-        self.description1.place(x=70, y=365)
-
-        self.no2 = ttk.Label(self, text="2)", style="H2.TLabel", anchor='w')
-        self.no2.place(x=30, y=410, width=40, height=70)
-        self.case2 = ttk.Label(self, text=case_data[1]["title"], style="HS2.TLabel", anchor='nw', #add upper padding
-                                justify="left", wraplength=450)
-        self.case2.place(x=70, y=410, width=640, height=70)
-        self.description2 = ttk.Label(self, text=case_data[1]["text"], style="HS4.TLabel", anchor='w')
-        self.description2.place(x=70, y=445)
-
-        self.no3 = ttk.Label(self, text="3)", style="H2.TLabel", anchor='w')
-        self.no3.place(x=30, y=490, width=40, height=70)
-        self.case3 = ttk.Label(self, text=case_data[2]["title"], style="HS2.TLabel", anchor='nw', #add upper padding
-                                justify="left", wraplength=450)
-        self.case3.place(x=70, y=490, width=640, height=70)
-        self.description3 = ttk.Label(self, text=case_data[2]["text"], style="HS4.TLabel", anchor='w')
-        self.description3.place(x=70, y=525)
-
-        self.no4 = ttk.Label(self, text="4)", style="H2.TLabel", anchor='w')
-        self.no4.place(x=30, y=570, width=40, height=70)
-        self.case4 = ttk.Label(self, text=case_data[3]["title"], style="HS2.TLabel", anchor='nw', #add upper padding
-                                justify="left", wraplength=450)
-        self.case4.place(x=70, y=570, width=640, height=70)
-        self.description4 = ttk.Label(self, text=case_data[3]["text"], style="HS4.TLabel", anchor='w')
-        self.description4.place(x=70, y=605)
-
-        # create a button
-        self.button_continue = ttk.Button(self, text="Start Case 1", style="H6.TButton", command=self.app.show_case_one)
-        self.button_continue.place(x=910, y=590, width=220, height=52) # might inverse colouring? (to match the primary and highlight as info), AND centre x once notebook is finalised
-
-        # ---------------------------------------------------------------------!!!
-
-        self.overall = ttk.Label(self, text=" OVERALL PROGRESS", style="HS5.TLabel", anchor='nw')
-        self.overall.place(x=30, y=120, width=680, height=90)
-
-        # ---------------------------------------------------------------------!!!
-
-        self.continue_last = ttk.Label(self, text="", style="HS5.TLabel", anchor='nw')
-        self.continue_last.place(x=30, y=120, width=680, height=90)
-
-        # ---------------------------------------------------------------------!!!
-
-        self.profile_settings = ttk.Label(self, text="", style="HS5.TLabel", anchor='nw')
-        self.profile_settings.place(x=740, y=60, width=525, height=110)
-
-
-        #CRUD!!!'''

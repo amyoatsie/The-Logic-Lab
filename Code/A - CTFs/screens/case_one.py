@@ -30,8 +30,8 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
             raw_img.thumbnail((520, 315))
             self.icons[name] = ImageTk.PhotoImage(raw_img) # Save it into the dictionary using its name as the key
 
-        #-------------------------------
-        
+    #----------------------------------------------------------------------------
+
         questions_data = [ #centralised list of dictionaries to allow easier editing
             {"text": "What does the outline around the objects primarily suggest?",
                 "options": ["Image editing", "Camera blur", "Motion blur", "AI"]},
@@ -42,7 +42,7 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
             {"text": "What were the original colours of the objects which were added in the altered image?",
                 "options": ["Red & Green", "Blue & Yellow", "Orange & Green", "Pink & Blue"]}]
 
-        #---------------------------------
+    #----------------------------------------------------------------------------
 
         self.title = ttk.Label(self, text="Metadata Analysis | Case 1", style="H1.TLabel", anchor='w') # change the heading to forensics cause more so image forensics than metadata now?
         self.title.place(x=30, y=40)
@@ -54,11 +54,11 @@ Figure 1.3 ~ Helps highlight altered objects by visualizing hidden file changes.
 Figure 1.4 ~ Additional background information.""", 
                                 style="H4.TLabel", anchor='w', justify="left", wraplength=680)
         self.explain.place(x=30, y=120)
-        #question title
+        # Question title
         self.no1 = ttk.Label(self, text="Questions", style="H2-2.TLabel", anchor='w')
         self.no1.place(x=30, y=275, width=150, height=70)
 
-        # questions and numbers
+        # Questions and numbers
         self.no1 = ttk.Label(self, text="1)", style="H2.TLabel", anchor='w')
         self.no1.place(x=30, y=330, width=40, height=70)
         self.question1 = ttk.Label(self, text=questions_data[0]["text"], style="H3.TLabel", anchor='w', 
@@ -83,6 +83,8 @@ Figure 1.4 ~ Additional background information.""",
                                 justify="left", wraplength=450)
         self.question4.place(x=70, y=570, width=640, height=70)
 
+    #----------------------------------------------------------------------------
+
         #comboboxes
         self.userAnswer1 = ttk.Combobox(self, style="H4.TCombobox", values=questions_data[0]["options"], state=READONLY) # might move under each question?
         self.userAnswer1.place(x=530, y=350, width=160, height=30)
@@ -100,7 +102,7 @@ Figure 1.4 ~ Additional background information.""",
         self.home_button = ttk.Button(self, text="Home", style="H6.TButton", command=self.app.show_home) #return to home?
         self.home_button.place(x=1190, y=30, width=80, height=45) 
 
-        # ---------------------------------------------------------------------!!!
+    #----------------------------------------------------------------------------
 
         self.notebook = ttk.Notebook(self, style='bottomtab.TNotebook')
         self.notebook.place(x=720, y=120, width=580, height=410)
@@ -123,7 +125,7 @@ Figure 1.4 ~ Additional background information.""",
         self.notebook.add(self.tab_difference, text=" Difference Analysis ")
         self.notebook.add(self.tab_info, text="  Image Info  ") # spaces act as internal button padding
 
-#--------------------------------------------
+    #----------------------------------------------------------------------------
 
     # create functions/methods for the buttons inside the class? - should i move this to app or something else?
     def on_submit_click(self): # for testing!
@@ -149,15 +151,7 @@ Figure 1.4 ~ Additional background information.""",
             ResultPopup(self, "Challenge Complete",
                 f"You scored {results['score']}/{results['total']}.\nTry again!")
 
-        # 4. EXPORT AND SAVE DATA TO CSV
-
-#--------------------------------------------
-
-    # home button
-    #def on_home_click(self):
-
-
-#--------------------------------------------
+    #----------------------------------------------------------------------------
 
 class ImageTab(ttk.Frame):
     def __init__(self, parent, image_obj, caption):
@@ -176,5 +170,3 @@ class ImageTab(ttk.Frame):
             self,
             image=self.img)
         self.image_label.pack(pady=(5, 10))
-
-#--------------------------------------------
