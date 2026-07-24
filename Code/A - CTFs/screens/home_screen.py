@@ -1,4 +1,5 @@
 import sys
+import csv
 from pathlib import Path
 if str(Path(__file__).resolve().parent.parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -17,14 +18,15 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
         SCREENS_DIR = Path(__file__).resolve().parent
         DATA_DIR = SCREENS_DIR.parent / "data"
-        csv_path = DATA_DIR / "progress.csv"
+        self.csv_path = DATA_DIR / "progress.csv"
         self.config_path = DATA_DIR / "config.txt"
-        self.evaluator = ChallengeEvaluator(csv_path) # Parse csv path into challenge evaluator
+        
+        self.evaluator = ChallengeEvaluator(self.csv_path) # Parse csv path into challenge evaluator
 
     #----------------------------------------------------------------------------
 
-        # Parse (NOT PASS LMAO) highest successfully completed case number from csv file
-        self.completed_cases = self.get_completed_cases_from_csv(csv_path)
+        '''# Parse (NOT PASS LMAO) highest successfully completed case number from csv file
+        self.completed_cases = self.get_completed_cases_from_csv(self.csv_path)
         self.total_challenges = 4
         self.completed_count = len(self.completed_cases)
         
@@ -34,8 +36,16 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         else:
             self.current_case_id = min(max(self.completed_cases) + 1, self.total_challenges)
 
-        self.current_case_title = f"Case {self.current_case_id:02d}"
+        #self.current_case_title = f"Case {self.current_case_id:02d}"
         self.current_case_sub_progress = 0 
+        self.max_sub_challenges = 4'''
+        
+        # Default progress state
+        self.total_challenges = 4
+        self.completed_cases = set()
+        self.completed_count = 0
+        self.current_case_id = 1
+        self.current_case_sub_progress = 0
         self.max_sub_challenges = 4
 
     #----------------------------------------------------------------------------
@@ -50,28 +60,28 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             {"id": 4, "title": "Case 04 | Cryptography",
                 "description": "Encryption, hashing, & secure communication"}]
     
-        active_idx = self.current_case_id - 1
-        self.current_case_title = self.case_definitions[active_idx]["title"]
-        self.current_case_sub_progress = 0 
-        self.max_sub_challenges = 4
+        #active_idx = self.current_case_id - 1
+        #self.current_case_title = self.case_definitions[active_idx]["title"]
+        #self.current_case_sub_progress = 0 
+        #self.max_sub_challenges = 4
     
         # Load user settings file profile
         self.username_var = ttk.StringVar()
         self.auth_btn_var = ttk.StringVar()
 
-        self.update_profile_variables()
+        self.reload_user_state()
         self.create_widgets()
 
     #----------------------------------------------------------------------------
 
-    def update_profile_variables(self): # Update text values dynamically (through variables)
+    '''def update_profile_variables(self): # Update text values dynamically (through variables)
         saved_name = self.load_username()
         if saved_name:
             self.username_var.set(f"Welcome Back, {saved_name}")
             self.auth_btn_var.set("Sign Out")
         else:
             self.username_var.set("Welcome to Logic Lab, Guest")
-            self.auth_btn_var.set("Sign In")
+            self.auth_btn_var.set("Sign In")'''
 
     #----------------------------------------------------------------------------
 
@@ -86,15 +96,45 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     #----------------------------------------------------------------------------
 
-    def handle_auth_action(self): #Toggle login state using the custom project popup window
-        if self.load_username():
+    def reload_user_state(self): # Extract progress based on the current user
+        current_user = self.load_username()
+        
+        if current_user:
+            self.username_var.set(f"Welcome Back, {current_user}")
+            self.auth_btn_var.set("Sign Out")
+        
+            # Filter and parse data for this user
+            self.completed_cases = self.get_completed_cases_from_csv(self.csv_path, current_user)
+        else:
+            self.username_var.set("Welcome to Logic Lab, Guest")
+            self.auth_btn_var.set("Sign In")
+            self.completed_cases = set()
+
+        self.completed_count = len(self.completed_cases)
+        
+        if not self.completed_cases:
+            self.current_case_id = 1
+        else:
+            self.current_case_id = min(max(self.completed_cases) + 1, self.total_challenges)
+
+        active_idx = self.current_case_id - 1
+        self.current_case_title = self.case_definitions[active_idx]["title"]
+
+    #----------------------------------------------------------------------------
+
+    def handle_auth_action(self): # Toggle login state using the custom project popup window
+        current_user = self.load_username() # Create a local variable for readability (might not be needed???)
+        
+        if current_user:
             # Sign Out logic: clear file contents and reset variables
             try:
                 if self.config_path.exists():
                     self.config_path.write_text("") 
             except Exception:
                 pass
-            self.update_profile_variables()
+            
+            self.reload_user_state()
+            self.create_widgets()
         else:
             # Sign In logic: launch the custom text entry popup window
             popup = ResultPopup(
@@ -108,15 +148,23 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             if popup.user_input_value:
                 try:
                     self.config_path.parent.mkdir(parents=True, exist_ok=True)
-                    self.config_path.write_text(popup.user_input_value)
+                    self.config_path.write_text(popup.user_input_value.strip())
+
                 except Exception:
                     pass
-                self.update_profile_variables()
+            
+                self.reload_user_state()
+                self.create_widgets()
 
     #----------------------------------------------------------------------------
 
     def handle_reset_progress(self): # Wipe progress data from the CSV while preserving the header line
         # Use the custom ResultPopup as a confirmation dialog/popup first
+        current_user = self.load_username()
+    
+        if not current_user:
+            return
+        
         popup = ResultPopup( #popup???
             parent=self,
             title="Reset Progress?",
@@ -124,56 +172,70 @@ class homeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             button_text="Confirm Reset",
             show_input=False
         )
-        
-        # Open the progress CSV file path
-        SCREENS_DIR = Path(__file__).resolve().parent
-        DATA_DIR = SCREENS_DIR.parent / "data"
-        csv_path = DATA_DIR / "progress.csv"
 
-        if csv_path.exists(): # CRUD
-            try:
-                # Read the existing CSV file
-                with open(csv_path, "r") as file:
-                    lines = file.readlines()
+        if not self.csv_path.exists(): # CRUD
+            return
+        
+        try:
+            # Read the existing CSV file
+            with open(self.csv_path, "r") as file:
+                reader = csv.DictReader(file)
+                rows = list(reader)
                 
-                # Extract line 1 (the header string)
-                header = lines[0] if lines else "timestamp,currentChallenge,numberCorrect,questionNumber,result\n"
+            remaining_rows = [row for row in rows 
+                            if row["username"] != current_user]
+                
+            '''Extract line 1 (the header string)
+                #header = lines[0] if lines else "timestamp,currentChallenge,numberCorrect,questionNumber,result\n"
                 
                 # Overwrite the file ONLY keeping line 1 to wipe history entries
-                with open(csv_path, "w") as file:
-                    file.write(header)
+                with open(self.csv_path, "w") as file:
+                    file.write(header)'''
                 
-                # Reset the local variables back to 'default' states
-                self.completed_cases = set()
-                self.completed_count = 0
-                self.current_case_id = 1
-                self.current_case_title = "Case 01 | Metadata Analysis"
-                
-                # Update the UI components to refresh the screen
-                self.create_widgets()
-                
-            except Exception as e:
-                print(f"Error resetting progress file logic tracks: {e}") # Error message
+            fieldnames = ["username", "timestamp", "currentChallenge",
+                "numberCorrect", "questionNumber", "result"]
+        
+            with open(self.csv_path, "w", newline="") as file:
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(remaining_rows)
+
+            # Reset the local variables back to 'default' states
+            self.completed_cases = set()
+            self.completed_count = 0
+            self.current_case_id = 1
+            self.current_case_title = "Case 01 | Metadata Analysis"
+            
+            # Update the UI components to refresh the screen
+            self.create_widgets()
+            
+        except Exception as e:
+            print(f"Error resetting progress file logic tracks: {e}") # Error message
 
     #----------------------------------------------------------------------------
 
-    def get_completed_cases_from_csv(self, path): # Read the progress CSV file to find successful cases
+    def get_completed_cases_from_csv(self, path, username): # Read the progress CSV file to find successful cases
         completed = set()
+    
         if not path.exists():
             return completed
         try:
-            with open(path, "r") as f:
-                lines = f.readlines()
-                for line in lines[1:]:
-                    parts = line.strip().split(",")
-                    if len(parts) >= 5:
-                        case_str = parts[1]    # e.g., "Case 1"
-                        result_str = parts[4]  # e.g., "Pass"
-                        if result_str.strip().lower() == "pass":
-                            num = int(''.join(filter(str.isdigit, case_str)))
-                            completed.add(num)
-        except Exception:
-            pass
+            with open(path, "r", newline="") as f:
+                reader = csv.DictReader(f)
+            
+                for row in reader:
+                    if row["username"] != username:
+                        continue
+                
+                    if row["result"].strip().lower() == "pass":
+                        case_str = row["currentChallenge"]
+                        num = int(''.join(filter(str.isdigit, case_str)
+                            ))
+                        completed.add(num)
+
+        except Exception as e:
+            print(f"Error reading progress: {e}")
+    
         return completed
 
     #----------------------------------------------------------------------------
@@ -279,12 +341,12 @@ class CaseCard(ttk.Frame):
         if status == "Completed":
             btn_text = "Review"
             btn_state = NORMAL if btn_command else DISABLED
-            status_text = "Completed" # maybe remove?
+            status_text = "" # Show no text as it appears overwhelming
             status_x = 400
         elif status == "Unlocked":
             btn_text = "Start"
             btn_state = NORMAL if btn_command else DISABLED
-            status_text = "Available"
+            status_text = ""
             status_x = 405
         else:
             btn_text = "Locked"

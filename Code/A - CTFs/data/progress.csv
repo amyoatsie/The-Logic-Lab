@@ -1,3 +1,1 @@
-timestamp, currentChallenge, numberCorrect, questionNumber, result
-2026-07-23 22:47:12,Case 1,0,4,Fail
-2026-07-23 22:47:16,Case 1,1,4,Fail
+username, timestamp, currentChallenge, numberCorrect, questionNumber, result
