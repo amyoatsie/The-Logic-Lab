@@ -3,7 +3,7 @@ from pathlib import Path
 import ttkbootstrap as ttk # type: ignore (error showed)
 
 # Import screens
-from screens.home_screen import homeScreen
+from screens.home_screen import HomeScreen
 from screens.case_one import challengeScreenOne
 # e.g. from screens.challenge_1 import Challenge1Screen (might change the name?)
 
@@ -37,7 +37,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
     #----------------------------------------------------------------------------
 
     def setup_custom_theme(self): # Custom colouring is defined to match the mockups in a method
-        # Creates and applies the global color set application-wide
+        # Create and apply the global color set application-wide
         style = ttk.Style()
         custom_colors = {
             'primary': '#46403A',
@@ -64,7 +64,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
         for color_name, hex_code in custom_colors.items():
             style.colors.set(color_name, hex_code)
 
-        HEADING_FONT = "Arial Black" # Used "Arial Black" as an Archivo alternative 
+        HEADING_FONT = "Arial Black" # Used "Arial Black" as an Archivo alternative as they have similar weights
         BODY_FONT = "Roboto" # Main text font defined as a constant
         BG_COLOR = custom_colors['bg']
 
@@ -190,7 +190,7 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
     def show_home(self):
         if self.current_screen is not None:
             self.current_screen.destroy()
-        self.current_screen = homeScreen(self.container, self)
+        self.current_screen = HomeScreen(self.container, self)
         self.current_screen.pack(fill="both", expand=True)
 
     #----------------------------------------------------------------------------

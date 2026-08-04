@@ -11,7 +11,7 @@ READONLY = "readonly"
 
 class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts as a modular screen page
     def __init__(self, parent, app):
-        super().__init__(parent) # Initialize the frame inside the parent container (app.py)
+        super().__init__(parent) # Initialise the frame inside the parent container (app.py)
         self.app = app
 
         SCREENS_DIR = Path(__file__).resolve().parent
@@ -21,7 +21,7 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
         image_names = ["errorLevel", "luminanceGradient", "differenceAnalysis", "imageInfo"]
         
-        # Initialize an empty dictionary
+        # Initialise an empty dictionary
         self.icons = {}
 
         for name in image_names:
@@ -32,7 +32,7 @@ class challengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
     #----------------------------------------------------------------------------
 
-        questions_data = [ #centralised list of dictionaries to allow easier editing
+        questions_data = [ # Centralised list of dictionaries to allow easier editing
             {"text": "What does the outline around the objects primarily suggest?",
                 "options": ["Image editing", "Camera blur", "Motion blur", "AI"]},
             {"text": "What section of the screen shows compression inconsistencies?",
@@ -118,7 +118,7 @@ Figure 1.4 ~ Additional background information.""",
         "Difference Analysis | compares a photo against its own hidden 'original thumbnail' to reveal hidden changes")
 
         self.tab_info = ImageTab(self.notebook, self.icons["imageInfo"],
-        "\nImage Info | ???")
+        "\nImage Info | Additional background information on how the image was changed")
 
         self.notebook.add(self.tab_luminance, text=" Luminance Gradient ")
         self.notebook.add(self.tab_error, text=" Error Level Analysis ")
@@ -128,8 +128,10 @@ Figure 1.4 ~ Additional background information.""",
     #----------------------------------------------------------------------------
 
     # create functions/methods for the buttons inside the class? - should i move this to app or something else?
-    def on_submit_click(self): # for testing!
-        print("Submit button clicked!") #add navigation? or in different folder?
+    def on_submit_click(self): # Fetch the active username and fall back to "Guest" if the challenge is launched without logging in
+        #print("Submit button clicked!") # (from testing) add navigation in different folder?
+        current_username = getattr(self.app, 'current_user', 'Guest') or 'Guest'
+        
         user_selections = {
             "q1": self.userAnswer1.get(), "q2": self.userAnswer2.get(),
             "q3": self.userAnswer3.get(), "q4": self.userAnswer4.get()}
@@ -141,12 +143,23 @@ Figure 1.4 ~ Additional background information.""",
             return
 
         results = self.evaluator.evaluate_answers(user_selections)
-        print(results) # testing
-        self.evaluator.save_progress("Case 1", results["score"], results["total"], results["passed"])
+        #print(results) # testing
+        self.evaluator.save_progress(username=current_username,  challenge_name="Case 1",
+            score=results["score"], total=results["total"], passed=results["passed"])
 
-        if results["passed"]: #temperary?
-            ResultPopup(self, "Challenge Complete", 
-                f"Congratulations!\nYou scored {results['score']}/{results['total']}.")
+        if results["passed"]:
+            if current_username == "Guest":
+                ResultPopup(self, "Challenge Complete", 
+                    f"Congratulations! You scored 100%. \nSign in to save progress/continue.")
+            else:
+                ResultPopup(self, "Challenge Complete", 
+                                    f"Congratulations!\nYou scored {results['score']}/{results['total']}.", button_text="Continue")
+
+                if hasattr(self.app, 'home_screen'):
+                    self.app.home_screen.reload_user_state()
+                    self.app.home_screen.create_widgets()
+                
+                self.app.show_home()
         else:
             ResultPopup(self, "Challenge Complete",
                 f"You scored {results['score']}/{results['total']}.\nTry again!")

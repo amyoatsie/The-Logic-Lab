@@ -11,23 +11,24 @@ class ResultPopup(ttk.Toplevel):
         frame = ttk.Frame(self, padding=25)
         frame.pack(fill="both", expand=True)
 
-        # Makes it behave like a popup
+        # Make the screen behave like a popup
         self.transient(parent)
         self.grab_set()
 
         self.user_input_value = None
+        self.confirmed = False
 
         ttk.Label(frame, text=title, style="H2-2.TLabel").pack(pady=(0, 15))
         ttk.Label(frame, text=message, style="H4.TLabel", justify="center", wraplength=340).pack() # center or centre???
 
-        # Conditional input field for username authentication
+        # Input field for username
         if show_input:
             self.entry_var = ttk.StringVar()
             self.entry_field = ttk.Entry(frame, textvariable=self.entry_var, font=("Helvetica", 12))
             self.entry_field.pack(fill=X, padx=20, pady=(0, 15))
             self.entry_field.focus_set()
             
-            # Pressing enter submits the prompt automatically (for ease of use)
+            # Submit the username automatically when user presses 'enter' (for ease of use)
             self.entry_field.bind("<Return>", lambda e: self.on_submit())
             button_cmd = self.on_submit
         else:
@@ -48,4 +49,9 @@ class ResultPopup(ttk.Toplevel):
 
     def on_submit(self): # Save entry information before closing
         self.user_input_value = self.entry_var.get().strip()
+        self.confirmed = True
+        self.destroy()
+
+    def on_confirm(self):
+        self.confirmed = True
         self.destroy()
