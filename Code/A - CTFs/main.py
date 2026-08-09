@@ -1,8 +1,8 @@
-from app import App # Import the app class itself
+from app import App
 
-def main():
+def main(): # Create the application object and start the GUI event loop
     app = App()
-    app.mainloop() # Call the in-built mainloop engine :)
+    app.mainloop()
 
 if __name__ == "__main__":
     main()

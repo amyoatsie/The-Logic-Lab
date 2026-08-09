@@ -6,8 +6,9 @@ if str(Path(__file__).resolve().parent.parent) not in sys.path:
 
 from ttkbootstrap.constants import * # type: ignore # Import constants like LEFT, RIGHT, TOP, BOTTOM
 import ttkbootstrap as ttk # type: ignore 
-from models.challenge_logic import ChallengeEvaluator
+from models.challenge_evaluator import ChallengeEvaluator
 from screens.custom_popup import ResultPopup
+from  screens.case_one import ChallengeScreenOne
 
 READONLY = "readonly"
 
@@ -38,7 +39,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
         self.case_definitions = [ # Centralised list of dictionaries to allow easier editing & increase readability for future development
             {"id": 1, "title": "Case 01 | Metadata Analysis",
-                "description": "Understading hidden information in files", "command": self.app.show_case_one},
+                "description": "Understading hidden information in files", "command": lambda: self.app.show_screen(ChallengeScreenOne)},
             {"id": 2, "title": "Case 02 | Digital Forensic Analysis",
                 "description": "Analysing evidence and reconstructing events"}, #add command when screen is created
             {"id": 3, "title": "Case 03 | Social Engineering",
@@ -63,21 +64,20 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
                 self.csv_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(self.csv_path, "w", newline="", encoding="utf-8") as f:
                     writer = csv.writer(f)
-                    writer.writerow(["username", "timestamp", "currentChallenge", "numberCorrect", "questionNumber", "result"]) # Header row
-            except Exception:
-                pass
-
-    #----------------------------------------------------------------------------
-
-    def load_username(self): # Load user profile (not sure if this actually does anything rn?)
-        if hasattr(self.app, 'current_user') and self.app.current_user:
-            return self.app.current_user.strip()
-        return None
+                    writer.writerow(["username", # Define header row
+                                    "timestamp", 
+                                    "currentChallenge", 
+                                    "numberCorrect", 
+                                    "questionNumber", 
+                                    "result"]
+                                    )
+            except Exception as e:
+                print(f"Unable to create CSV: {e}")
 
     #----------------------------------------------------------------------------
 
     def reload_user_state(self): # Extract progress based on the current user
-        current_user = self.load_username()
+        current_user = self.app.get_current_username()
         
         if current_user:
             self.username_var.set(f"Welcome Back, {current_user}")
@@ -104,7 +104,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
     #----------------------------------------------------------------------------
 
     def handle_auth_action(self): # Toggle login state using the custom project popup window
-        current_user = self.load_username() # Create a local variable for readability (might not be needed???)
+        current_user = self.app.get_current_username() # Create a local variable for readability (might not be needed???)
         
         if current_user:
             # Sign Out logic: clear file contents and reset variables
@@ -119,7 +119,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
                 message="Enter your username or undercover alias:",
                 button_text="Submit",
                 show_input=True
-            )
+                )
             # Save name if user provided a valid input string (existense validation)
             if popup.user_input_value and popup.user_input_value.strip():
                 input_name = popup.user_input_value.strip()
@@ -142,10 +142,11 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     def handle_reset_progress(self): # Wipe progress data from the CSV while keeping the header line
         # Use the custom ResultPopup as a confirmation dialog/popup first
-        current_user = self.load_username()
+        current_user = self.app.get_current_username()
     
         if not current_user:
             return
+        current_user = current_user.strip().lower()
         
         popup = ResultPopup(
             parent=self,
@@ -158,7 +159,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         if not popup.confirmed: # Exit early if the user closes the popup or clicks cancel
             return
 
-        if not self.csv_path.exists(): # CRUD
+        if not self.csv_path.exists():
             return
         
         try:
@@ -171,8 +172,13 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             remaining_rows = [row for row in rows 
                             if row["username"] != current_user]
             
-            fieldnames = ["username", "timestamp", "currentChallenge",
-                "numberCorrect", "questionNumber", "result"]
+            fieldnames = ["username", 
+                        "timestamp", 
+                        "currentChallenge",
+                        "numberCorrect", 
+                        "questionNumber", 
+                        "result"
+                        ]
         
             with open(self.csv_path, "w", newline="") as file:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -191,32 +197,6 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             
         except Exception as e:
             print(f"Error resetting progress file logic tracks: {e}") # Error message
-
-    #----------------------------------------------------------------------------
-
-    def get_completed_cases_from_csv(self, path, username): # Read the progress CSV file to find successful cases
-        completed = set()
-    
-        if not path.exists():
-            return completed
-        try:
-            with open(path, "r", newline="") as f:
-                reader = csv.DictReader(f)
-            
-                for row in reader:
-                    if row["username"] != username:
-                        continue
-                
-                    if row["result"].strip().lower() == "pass":
-                        case_str = row["currentChallenge"]
-                        num = int(''.join(filter(str.isdigit, case_str)
-                            ))
-                        completed.add(num)
-
-        except Exception as e:
-            print(f"Error reading progress: {e}")
-    
-        return completed
 
     #----------------------------------------------------------------------------
 
@@ -274,7 +254,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             maximum=self.max_sub_challenges, 
             value=self.current_case_sub_progress, 
             style="Logic.Horizontal.TProgressbar"
-        ).pack(fill=X, pady=10)
+            ).pack(fill=X, pady=10)
 
         active_idx = self.current_case_id - 1
         active_command = self.case_definitions[active_idx].get("command", None)
@@ -301,7 +281,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         self.auth_button.place(x=235, y=8, width=120, height=35)
 
         # Deactivate reset options if the user is unauthenticated ("Guest")
-        is_logged_in = self.load_username() is not None
+        is_logged_in = self.app.get_current_username() is not None
         reset_state = NORMAL if is_logged_in else DISABLED
         
         reset_button = ttk.Button(
@@ -316,13 +296,13 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
     #----------------------------------------------------------------------------
 
 class CaseCard(ttk.Frame):
-    def __init__(self, parent, data, status):
+    def __init__(self, parent, case_data, status):
         super().__init__(parent, padding=10, style="Card.TFrame")
 
-        ttk.Label(self, text=data["title"], style="HS2.TLabel", wraplength=380).place(x=15, y=5)
-        ttk.Label(self, text=data["description"], style="HS4.TLabel", wraplength=350).place(x=15, y=35)
+        ttk.Label(self, text=case_data["title"], style="HS2.TLabel", wraplength=380).place(x=15, y=5)
+        ttk.Label(self, text=case_data["description"], style="HS4.TLabel", wraplength=350).place(x=15, y=35)
 
-        button_command = data.get("command", None)
+        button_command = case_data.get("command", None)
 
         # Conditional tracking for label text (sign in vs out) and button status
         if status == "Completed":

@@ -32,7 +32,7 @@ class ResultPopup(ttk.Toplevel):
             self.entry_field.bind("<Return>", lambda e: self.on_submit())
             button_cmd = self.on_submit
         else:
-            button_cmd = self.destroy
+            button_cmd = self.on_confirm
 
         button = ttk.Button(frame, text=button_text, style="H6.TButton", command=button_cmd)
         button.place(x=75, y=120, width=200, height=45)

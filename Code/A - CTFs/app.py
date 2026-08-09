@@ -1,130 +1,125 @@
-import tkinter as tk
 from pathlib import Path
-import ttkbootstrap as ttk # type: ignore (error showed)
+import ttkbootstrap as ttk # type: ignore
 
-# Import screens
 from screens.home_screen import HomeScreen
-from screens.case_one import challengeScreenOne
-# e.g. from screens.challenge_1 import Challenge1Screen (might change the name?)
+from screens.case_one import ChallengeScreenOne # ???
 
-# Import repos
-# e.g. from repos.challenge_repo_csv import ChallengeRepoCsv
+# Global constants used to maintain consistent typography and window dimensions
+HEADING_FONT = "Arial Black" # Main heading font defined for clarity
+BODY_FONT = "Roboto" # Main body font defined for clarity
+WINDOW_WIDTH = 1366
+WINDOW_HEIGHT = 768
 
-
-class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk.Tk
+class App(ttk.Window): # Allow the main application controller to inherit directly from ttk.Window instead of standard tk.Tk
+    # Control the main application window, theme and screen navigation
     def __init__(self):
-        super().__init__(title="User Module Access", size=(1366, 768))
+        super().__init__(title="User Module Access", size=(WINDOW_WIDTH, WINDOW_HEIGHT))
 
-        # Variables defined inside app class, therefore references as "app.___"
-        self.base_dir = Path(__file__).resolve().parent #references the "relative folder"!!!
-        self.data_dir = self.base_dir / "data" #act like global variables but are only defined once
+        # Store the current user, with 'None' representing a guest
+        self.current_user = None
 
-        self.setup_custom_theme() # injects global style engine profile
+        # Store paths relative to the directory so the program can locate the files regardless of the launch location
+        self.base_dir = Path(__file__).resolve().parent 
+        self.data_dir = self.base_dir / "data"
 
-        # define repos ???
-        # e.g. self.challenge_repo = ChallengeRepoCsv(self.data_dir / "progress.csv")
+        # Apply the custom visual theme and widget styles
+        self.setup_custom_theme()
 
-        # Define Navigation Container (Where screens swap out) !!!
-        self.container = ttk.Frame(self) # in case future errors occur, ttk could be change to tb which is a more universal abbreviation
+        # Define Navigation Container used as the parent for the current screen
+        self.container = ttk.Frame(self)
         self.container.pack(fill="both", expand=True)
-        self.current_screen = None
-        self.show_home()
-
-        # Initialise initial screen display !!! change to homescreen when created!
-        '''self.current_screen = challengeScreenOne(self.container)
-        self.current_screen.pack(fill="both", expand=True)'''
+        self.current_screen = None # Track the currently displayed screen so it can be replaced during navigation
+        self.show_screen(HomeScreen) # Display the home screen when the app starts
 
     #----------------------------------------------------------------------------
 
-    def setup_custom_theme(self): # Custom colouring is defined to match the mockups in a method
-        # Create and apply the global color set application-wide
+    def setup_custom_theme(self): # Configure the app's colours, fonts and widget styles application-wide
         style = ttk.Style()
-        custom_colors = {
+        custom_colours = { # Define the shared colour palette used throughout the application as a local variable
             'primary': '#46403A',
             'secondary': '#D7C4AC',
             'success': "#61daae", 
-            'info': '#A2B9CB', # same as border
-            'warning': '#f6c23e', # might not need to change?
+            'info': '#A2B9CB',
+            'warning': '#f6c23e',
             'danger': '#B3261E',
             'light': '#FFF6EB',
-            'dark': '#5a5c69', # have yet to change
+            'dark': '#5a5c69',
             'bg': '#C1A37F',
-            'fg': '#2e2f37', # have yet to change, text colour (fg)
-            'selectbg': '#eaecf4', # have yet to change
-            'selectfg': "#ffffff", # front 
+            'fg': '#2e2f37',
+            'selectbg': '#eaecf4',
+            'selectfg': "#ffffff",
             'border': '#A2B9CB',
-            'inputfg': '#2e2f37', # have yet to change
+            'inputfg': '#2e2f37',
             'inputbg': '#CAB8A2',
-            'active': '#dddfeb' # have yet to change
+            'active': '#dddfeb'
             }
         
-        style.theme_names().append('logic_lab_theme')
-        style.theme_use('flatly') # Set a standard base theme style to safely map basic window behaviors !!!        
-        # Override the colors in memory instantly using the official settings setter
-        for color_name, hex_code in custom_colors.items():
+        # Use ttkbootstrap's Flatly theme as the base for the custom style
+        style.theme_use('flatly')
+        # Apply the custom colour palette to the base theme by overriding the colors in memory
+        for color_name, hex_code in custom_colours.items():
             style.colors.set(color_name, hex_code)
 
-        HEADING_FONT = "Arial Black" # Used "Arial Black" as an Archivo alternative as they have similar weights
-        BODY_FONT = "Roboto" # Main text font defined as a constant
-        BG_COLOR = custom_colors['bg']
+        BG_COLOR = custom_colours['bg']
 
     #----------------------------------------------------------------------------
 
-        # Heading 1 (The main header)
-        style.configure('H1.TLabel', font=(HEADING_FONT, -48), foreground=custom_colors['primary'], 
+        # Main Heading
+        style.configure('H1.TLabel', font=(HEADING_FONT, -48), foreground=custom_colours['primary'], 
                         background=BG_COLOR)
-        # Heading 2 (The question numbers)
-        style.configure('H2.TLabel', font=(BODY_FONT, -24), foreground=custom_colors['primary'], 
-                        background=custom_colors['secondary'])
-        # Heading 3 (The menu sub-headings and the questions)
-        style.configure('H3.TLabel', font=(BODY_FONT, -18), foreground=custom_colors['primary'], 
-                        background=custom_colors['secondary'])
-        # Heading 4 (The user inputs and main answers) !!!
-        style.configure('H4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], 
+        # Question numbers
+        style.configure('H2.TLabel', font=(BODY_FONT, -24), foreground=custom_colours['primary'], 
+                        background=custom_colours['secondary'])
+        # Menu subheadings and question text
+        style.configure('H3.TLabel', font=(BODY_FONT, -18), foreground=custom_colours['primary'], 
+                        background=custom_colours['secondary'])
+        # User inputs and main answer text
+        style.configure('H4.TLabel', font=(BODY_FONT, -16), foreground=custom_colours['primary'], 
                         background=BG_COLOR)
-        # Heading 5 (The explanatory text)
-        style.configure('H5.TLabel', font=(BODY_FONT, -14), foreground=custom_colors['primary'], 
+        # Explanatory and answer text
+        style.configure('H5.TLabel', font=(BODY_FONT, -14), foreground=custom_colours['primary'], 
                         background=BG_COLOR)
-        # Heading 6 (Buttons)
+        # Button text
         style.configure('H6.TButton', font=(BODY_FONT, -16), foreground=style.colors.light, 
                         background=style.colors.primary, bordercolor=style.colors.border, 
                         focuscolor=style.colors.border)
         style.map('H6.TButton', foreground=[('active', style.colors.light)], background=[('active', style.colors.info)])
 
-        # Heading 2 (The question header)
-        style.configure('H2-2.TLabel', font=(HEADING_FONT, -24), foreground=custom_colors['primary'], 
+        # Question header
+        style.configure('H2-2.TLabel', font=(HEADING_FONT, -24), foreground=custom_colours['primary'], 
                         background=BG_COLOR)
 
     #----------------------------------------------------------------------------
 
         # Home screen specific fonts
-        style.configure('HS2.TLabel', font=(HEADING_FONT, -20), foreground=custom_colors['primary'], 
-                        background=custom_colors['secondary'])
-        style.configure('HS4.TLabel', font=(BODY_FONT, -16), foreground=custom_colors['primary'], 
-                        background=custom_colors['secondary'])
-        style.configure('HS5.TLabel', font=(HEADING_FONT, -14), foreground=custom_colors['primary'], 
-                        background=custom_colors['secondary'])
+        style.configure('HS2.TLabel', font=(HEADING_FONT, -20), foreground=custom_colours['primary'], 
+                        background=custom_colours['secondary'])
+        style.configure('HS4.TLabel', font=(BODY_FONT, -16), foreground=custom_colours['primary'], 
+                        background=custom_colours['secondary'])
+        style.configure('HS5.TLabel', font=(HEADING_FONT, -14), foreground=custom_colours['primary'], 
+                        background=custom_colours['secondary'])
 
     #----------------------------------------------------------------------------
-        # Heading 4 (Comboboxes)
+        # Combobox text
         style.configure('H4.TCombobox', font=(BODY_FONT, -16))
 
-        # Combobox styling overrides (had to google)
-        style.map('H4.TCombobox', # State Maps: explicitly override operating system states to ensure it preserves the custom colours
-            fieldbackground=[('readonly', custom_colors['light']), ('disabled', custom_colors['light'])],
-            foreground=[('readonly', custom_colors['fg']), ('disabled', custom_colors['fg'])],
-            selectbackground=[('readonly', custom_colors['light'])], 
-            selectforeground=[('readonly', custom_colors['fg'])])
-        # Dropdown colour overrides
-        self.option_add('*TCombobox*Listbox.font', (BODY_FONT, -16)) # Change the dropdown list font to match the combobox design
-        def on_dropdown_popdown(event): # Register a class binding for every Combobox that manually forces the inner sub-listbox to accept custom colours
-            popdown = event.widget.tk.call('ttk::combobox::PopdownWindow', event.widget) # !!!
+        #  Override widget states so the custom colour scheme remains visible when a combobox is read-only or disabled
+        style.map('H4.TCombobox',
+            fieldbackground=[('readonly', custom_colours['light']), ('disabled', custom_colours['light'])],
+            foreground=[('readonly', custom_colours['fg']), ('disabled', custom_colours['fg'])],
+            selectbackground=[('readonly', custom_colours['light'])], 
+            selectforeground=[('readonly', custom_colours['fg'])])
+        # Override dropdown colour and font to math the theme
+        self.option_add('*TCombobox*Listbox.font', (BODY_FONT, -16))
+
+        def on_dropdown_popdown(event): # Manually force the underlying combobox dropdown to accept custom colours 
+            popdown = event.widget.tk.call('ttk::combobox::PopdownWindow', event.widget) 
             listbox = popdown + '.f.l'
             # Directly configure the underlying Tk graphic properties
-            event.widget.tk.call(listbox, 'configure', '-background', custom_colors['light']) # Background color of the open dropdown menu list
-            event.widget.tk.call(listbox, 'configure', '-foreground', custom_colors['primary']) # Text color of the unselected options inside the dropdown menu list
-            event.widget.tk.call(listbox, 'configure', '-selectbackground', custom_colors['secondary']) # Highlight background color when you hover or arrow key down over an item
-            event.widget.tk.call(listbox, 'configure', '-selectforeground', custom_colors['primary']) # Text color of the currently highlighted/selected option item
+            event.widget.tk.call(listbox, 'configure', '-background', custom_colours['light']) # Background color of the open dropdown menu list
+            event.widget.tk.call(listbox, 'configure', '-foreground', custom_colours['primary']) # Text color of the unselected options inside the dropdown menu list
+            event.widget.tk.call(listbox, 'configure', '-selectbackground', custom_colours['secondary']) # Highlight background color when you hover or arrow key down over an item
+            event.widget.tk.call(listbox, 'configure', '-selectforeground', custom_colours['primary']) # Text color of the currently highlighted/selected option item
         self.bind_class('TCombobox', '<Map>', on_dropdown_popdown)  
 
     #---------------------------------------------------------------------------
@@ -133,15 +128,16 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
 
     #---------------------------------------------------------------------------
         
-        # Create a custom notebook style targeting the bottom orientation of the notebook
+        # Configure the notebook and the orientation of the bottom of the notebook
         style.configure('bottomtab.TNotebook', 
-                        background=custom_colors['bg'], 
+                        background=custom_colours['bg'], 
                         tabposition='s',
                         borderwidth=0,
                         highlightthickness=0,
-                        lightcolor=custom_colors['bg'],
-                        darkcolor=custom_colors['bg'],
-                        bordercolor=custom_colors['bg'])
+                        lightcolor=custom_colours['bg'],
+                        darkcolor=custom_colours['bg'],
+                        bordercolor=custom_colours['bg']
+                        )
         
         style.layout('bottomtab.TNotebook.Tab', [
             ('Notebook.tab', {'sticky': 'nswe', 'children': [
@@ -151,58 +147,53 @@ class App(ttk.Window): # Inherit directly from ttk.Window instead of standard tk
             ]})
         ])
         
-        # Style the tab header buttons at the bottom
+        # Style the notebook tabs to be displayed below the analysis images
         style.configure('bottomtab.TNotebook.Tab', 
-                        background=custom_colors['secondary'], 
-                        foreground=custom_colors['primary'], 
+                        background=custom_colours['secondary'], 
+                        foreground=custom_colours['primary'], 
                         padding=[15, 6], 
                         font=(BODY_FONT, 10, 'bold'),
                         borderwidth=0,
-                        focuscolor=custom_colors['bg'],
-                        bordercolor=custom_colors['bg'])
+                        focuscolor=custom_colours['bg'],
+                        bordercolor=custom_colours['bg'])
         
-        # Preserve color map changes for the bottom tab headers
+        # Maintain the custom colours for selected, active and focused tabs
         style.map('bottomtab.TNotebook.Tab', 
                     background=[
-                    ('selected', custom_colors['primary']), 
-                    ('active', custom_colors['active'])
+                    ('selected', custom_colours['primary']), 
+                    ('active', custom_colours['active'])
                 ], 
                 foreground=[
-                    ('selected', custom_colors['light']), 
-                    ('active', custom_colors['fg'])
+                    ('selected', custom_colours['light']), 
+                    ('active', custom_colours['fg'])
                 ],
                 bordercolor=[
-                    ('selected', custom_colors['bg']),
-                    ('active', custom_colors['bg']),
-                    ('focus', custom_colors['bg'])
+                    ('selected', custom_colours['bg']),
+                    ('active', custom_colours['bg']),
+                    ('focus', custom_colours['bg'])
                 ],
                 lightcolor=[
-                    ('selected', custom_colors['bg']),
-                    ('focus', custom_colors['bg'])
+                    ('selected', custom_colours['bg']),
+                    ('focus', custom_colours['bg'])
                 ],
                 darkcolor=[
-                    ('selected', custom_colors['bg']),
-                    ('focus', custom_colors['bg'])
+                    ('selected', custom_colours['bg']),
+                    ('focus', custom_colours['bg'])
                 ])
 
     #------------------------------------------------------------------------------
 
-    def show_home(self):
-        if self.current_screen is not None:
+    def show_screen(self, screen_class): # Replace the current screen with a new screen object
+        if self.current_screen is not None: # Remove the previous screen before displaying the new one.
             self.current_screen.destroy()
-        self.current_screen = HomeScreen(self.container, self)
+        self.current_screen = screen_class(self.container, self)
         self.current_screen.pack(fill="both", expand=True)
+# CONSIDER REPLACING WITH SEPERATE FUNCTIONS
 
     #----------------------------------------------------------------------------
 
-    def show_case_one(self):
-        if self.current_screen is not None:
-            self.current_screen.destroy()
-        self.current_screen = challengeScreenOne(self.container, self)
-        self.current_screen.pack(fill="both", expand=True)
+    def get_current_username(self): # Return the current username, or 'None' for a guest
+        return self.current_user
 
     #----------------------------------------------------------------------------
-
-    def run(self):# Method for mainloop
-        self.mainloop()
 
