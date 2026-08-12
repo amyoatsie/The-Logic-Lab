@@ -10,8 +10,10 @@ BODY_FONT = "Roboto" # Main body font defined for clarity
 WINDOW_WIDTH = 1366
 WINDOW_HEIGHT = 768
 
-class App(ttk.Window): # Allow the main application controller to inherit directly from ttk.Window instead of standard tk.Tk
-    # Control the main application window, theme and screen navigation
+    #----------------------------------------------------------------------------
+
+class App(ttk.Window): # Allow the main application controller to inherit directly from ttk.Window
+    # Control the main app window, theme and screen navigation
     def __init__(self):
         super().__init__(title="User Module Access", size=(WINDOW_WIDTH, WINDOW_HEIGHT))
 

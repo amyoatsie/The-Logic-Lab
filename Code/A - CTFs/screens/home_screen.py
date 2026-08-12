@@ -1,33 +1,30 @@
 import sys
-import csv
 from pathlib import Path
 if str(Path(__file__).resolve().parent.parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from ttkbootstrap.constants import * # type: ignore # Import constants like LEFT, RIGHT, TOP, BOTTOM
+from ttkbootstrap.constants import * # type: ignore # Import constants
 import ttkbootstrap as ttk # type: ignore 
 from models.challenge_evaluator import ChallengeEvaluator
 from screens.custom_popup import ResultPopup
 from  screens.case_one import ChallengeScreenOne
+from repos.challenge_progress_repo import ChallengeProgressRepo
 
 READONLY = "readonly"
 
-class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a modular screen page MAKE 'h' CAPS
-    def __init__(self, parent, app):
-        super().__init__(parent) # Initialise the frame inside the parent container (app.py)
-        self.app = app
+    #----------------------------------------------------------------------------
 
-        SCREENS_DIR = Path(__file__).resolve().parent
-        DATA_DIR = SCREENS_DIR.parent / "data"
-        self.csv_path = DATA_DIR / "progress.csv"
-        #self.config_path = DATA_DIR / "config.txt"
-        
-        self.ensure_csv_exists()
-        self.evaluator = ChallengeEvaluator(self.csv_path) # Parse csv path into challenge evaluator
+class HomeScreen(ttk.Frame): # Display the main menu, user progress and available challenges through the GUI screen
+    def __init__(self, parent, app):
+        super().__init__(parent) # Initialise this screen inside the app's navigation container
+        self.app = app # Store the controller for navigation and user state
+
+        self.csv_path = self.app.data_dir / "progress.csv"
+        self.progress_repo = ChallengeProgressRepo(self.csv_path) # Repository handles reading and writing challenge progress
 
     #----------------------------------------------------------------------------
 
-        # Default progress state (set defaults to run at the START not the end in case of crashes, to prevent orphaned data)
+        # Initialise the screen's local progress state before loading saved user data
         self.total_challenges = 4
         self.completed_cases = set()
         self.completed_count = 0
@@ -37,62 +34,47 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     #----------------------------------------------------------------------------
 
-        self.case_definitions = [ # Centralised list of dictionaries to allow easier editing & increase readability for future development
+        # Store challenge metadata as a list of dictionaries for easier editing and to increase readability for future development
+        # A list preserves the challenge order, while dictionaries group each challenge's ID, title, description and optional navigation command
+        self.case_definitions = [ 
             {"id": 1, "title": "Case 01 | Metadata Analysis",
                 "description": "Understading hidden information in files", "command": lambda: self.app.show_screen(ChallengeScreenOne)},
             {"id": 2, "title": "Case 02 | Digital Forensic Analysis",
-                "description": "Analysing evidence and reconstructing events"}, #add command when screen is created
+                "description": "Analysing evidence and reconstructing events"}, # FUTURE DEV: Add commands when screens are created
             {"id": 3, "title": "Case 03 | Social Engineering",
                 "description": "Phishing, impersonation, & manipulation tactics"},
             {"id": 4, "title": "Case 04 | Cryptography",
                 "description": "Encryption, hashing, & secure communication"}
                 ]
     
-        # Load user tracking
+        # StringVars allow the displayed username and authentication button text to be updated when the user's login state changes
         self.username_var = ttk.StringVar()
         self.auth_button_var = ttk.StringVar()
 
-        # Read & extract history logs
+        # Read and load saved progress for the current user before creating the interface
         self.reload_user_state()
         self.create_widgets()
 
     #----------------------------------------------------------------------------
 
-    def ensure_csv_exists(self): # Build table headers if CSV is empty/doesn't exist
-        if not self.csv_path.exists():
-            try:
-                self.csv_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(self.csv_path, "w", newline="", encoding="utf-8") as f:
-                    writer = csv.writer(f)
-                    writer.writerow(["username", # Define header row
-                                    "timestamp", 
-                                    "currentChallenge", 
-                                    "numberCorrect", 
-                                    "questionNumber", 
-                                    "result"]
-                                    )
-            except Exception as e:
-                print(f"Unable to create CSV: {e}")
-
-    #----------------------------------------------------------------------------
-
-    def reload_user_state(self): # Extract progress based on the current user
-        current_user = self.app.get_current_username()
+    def reload_user_state(self): # Load the current user's saved progress and update the screen state
+        current_user = self.app.get_current_username() # Retrieve the username
         
         if current_user:
             self.username_var.set(f"Welcome Back, {current_user}")
             self.auth_button_var.set("Sign Out")
         
-            # Filter and parse data for this user
-            self.completed_cases = self.get_completed_cases_from_csv(self.csv_path, current_user)
+            # Request completed challenge IDs from the repo rather than accessing the CSV directly from the screen
+            self.completed_cases = self.progress_repo.get_completed_cases(current_user)
         
         else:
             self.username_var.set("Welcome to Logic Lab, Guest")
-            self.auth_button_var.set("Sign In")
+            self.auth_button_var.set("Sign In / Up")
             self.completed_cases = set()
 
         self.completed_count = len(self.completed_cases)
         
+        # Unlock the first incomplete challenge while preventing the challenge ID from exceeding the total number of available challenges
         if not self.completed_cases:
             self.current_case_id = 1
         else:
@@ -103,16 +85,16 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     #----------------------------------------------------------------------------
 
-    def handle_auth_action(self): # Toggle login state using the custom project popup window
-        current_user = self.app.get_current_username() # Create a local variable for readability (might not be needed???)
+    def handle_auth_action(self): # Toggle login state and refresh the displayed user
+        current_user = self.app.get_current_username() 
         
         if current_user:
-            # Sign Out logic: clear file contents and reset variables
+            # Sign out by clearing the current user
             self.app.current_user = None
             self.reload_user_state()
             self.create_widgets()
         else:
-            # Sign In logic: launch the custom text entry popup window
+            # Launch the custom text entry popup window to request a username
             popup = ResultPopup(
                 parent=self,
                 title="System Login",
@@ -120,11 +102,11 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
                 button_text="Submit",
                 show_input=True
                 )
-            # Save name if user provided a valid input string (existense validation)
+            # Validate that the username exists and does not begin with a number
             if popup.user_input_value and popup.user_input_value.strip():
                 input_name = popup.user_input_value.strip()
 
-                if input_name[0].isdigit(): # Type validation to check if the username STARTS with a number
+                if input_name[0].isdigit(): # Reject usernames beginning with a digit
                     ResultPopup(
                         parent=self,
                         title="Access Denied",
@@ -140,12 +122,13 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     #----------------------------------------------------------------------------
 
-    def handle_reset_progress(self): # Wipe progress data from the CSV while keeping the header line
+    def handle_reset_progress(self): # Confirm and reset the current user's saved challenge progress
         # Use the custom ResultPopup as a confirmation dialog/popup first
-        current_user = self.app.get_current_username()
+        current_user = self.app.get_current_username() # Normalise the username so it matches the format used by the repo
     
         if not current_user:
             return
+
         current_user = current_user.strip().lower()
         
         popup = ResultPopup(
@@ -156,52 +139,29 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             show_input=False
         )
 
-        if not popup.confirmed: # Exit early if the user closes the popup or clicks cancel
+        if not popup.confirmed: # Stop if the user cancels or closes the confirmation popup
             return
 
-        if not self.csv_path.exists():
-            return
-        
         try:
-            # Read the existing CSV file
-            with open(self.csv_path, "r") as file:
-                reader = csv.DictReader(file)
-                fieldnames = reader.fieldnames
-                rows = list(reader)
-                
-            remaining_rows = [row for row in rows 
-                            if row["username"] != current_user]
-            
-            fieldnames = ["username", 
-                        "timestamp", 
-                        "currentChallenge",
-                        "numberCorrect", 
-                        "questionNumber", 
-                        "result"
-                        ]
-        
-            with open(self.csv_path, "w", newline="") as file:
-                writer = csv.DictWriter(file, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(remaining_rows)
+            self.progress_repo.reset_user_progress(current_user) # Repo handles deletion of the user's CSV records
 
-            # Reset the local variables back to 'default' states
+            # Reset the screen's local progress state after the saved records are removed
             self.completed_cases = set()
             self.completed_count = 0
             self.current_case_id = 1
             self.current_case_title = "Case 01 | Metadata Analysis"
             
-            # Update the UI components to refresh the screen
+            # Refresh the displayed information
             self.reload_user_state()
             self.create_widgets()
             
         except Exception as e:
-            print(f"Error resetting progress file logic tracks: {e}") # Error message
+            print(f"Error resetting progress: {e}")
 
     #----------------------------------------------------------------------------
 
-    def create_widgets(self):
-        for child in self.winfo_children(): # Clear out any pre-existing widgets inside this frame container
+    def create_widgets(self): # Create the HomeScreen interface based on the current user and progress
+        for child in self.winfo_children(): # Remove existing widgets before rebuilding the screen
             child.destroy()
 
         self.title = ttk.Label(self, textvariable=self.username_var, style="H1.TLabel")
@@ -212,7 +172,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
         ttk.Label(progress, text="OVERALL PROGRESS", style="HS5.TLabel").pack(anchor="w")
 
-        # Link to total challenges completed
+        # Display the number of completed challenges using the current progress state
         self.progress = ttk.Progressbar(progress, maximum=self.total_challenges, 
             value=self.completed_count, style="Logic.Horizontal.TProgressbar")
         self.progress.pack(fill=X, pady=12)
@@ -225,9 +185,9 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         self.create_continue_card()
         self.create_profile_card()
 
-        # Case Cards Setup Loop
+        # Iterate through the challenge definitions and create a card for each case
         start_y = 270
-        for config in self.case_definitions:
+        for config in self.case_definitions: # Determine each challenge's
             if config["id"] in self.completed_cases:
                 status = "Completed"
             elif config["id"] == self.current_case_id:
@@ -248,7 +208,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         ttk.Label(frame, text="CONTINUE LAST CHALLENGE", style="HS5.TLabel").pack(anchor="w")
         ttk.Label(frame, text=self.current_case_title, style="H3.TLabel").pack(anchor="w", pady=(10,0))
 
-        # Update the progress bar to match the current completion level
+        # Display progress within the currently active challenge
         ttk.Progressbar(
             frame, 
             maximum=self.max_sub_challenges, 
@@ -257,7 +217,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
             ).pack(fill=X, pady=10)
 
         active_idx = self.current_case_id - 1
-        active_command = self.case_definitions[active_idx].get("command", None)
+        active_command = self.case_definitions[active_idx].get("command", None) # Retrieve the navigation command
         button_state = NORMAL if active_command else DISABLED
 
         ttk.Button(frame, text="Continue", style="H6.TButton", 
@@ -271,7 +231,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
         ttk.Label(frame, text="PROFILE SETTINGS", style="HS5.TLabel").place(x=15, y=14)
 
-        # Allow the button to change between "Sign In" and "Sign Out"
+        # Allow the button to change between "Sign In / Up" and "Sign Out"
         self.auth_button = ttk.Button(
             frame, 
             textvariable=self.auth_button_var, 
@@ -280,7 +240,7 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
         )
         self.auth_button.place(x=235, y=8, width=120, height=35)
 
-        # Deactivate reset options if the user is unauthenticated ("Guest")
+        # Deactivate reset options while the user is a 'Guest'
         is_logged_in = self.app.get_current_username() is not None
         reset_state = NORMAL if is_logged_in else DISABLED
         
@@ -295,16 +255,16 @@ class HomeScreen(ttk.Frame): # Inherit from ttk.Frame so this file acts as a mod
 
     #----------------------------------------------------------------------------
 
-class CaseCard(ttk.Frame):
+class CaseCard(ttk.Frame): # Reusable GUI component used to display a challenge
     def __init__(self, parent, case_data, status):
         super().__init__(parent, padding=10, style="Card.TFrame")
 
         ttk.Label(self, text=case_data["title"], style="HS2.TLabel", wraplength=380).place(x=15, y=5)
         ttk.Label(self, text=case_data["description"], style="HS4.TLabel", wraplength=350).place(x=15, y=35)
 
-        button_command = case_data.get("command", None)
+        button_command = case_data.get("command", None) # Retrieve the challenge's navigation command, if one exists
 
-        # Conditional tracking for label text (sign in vs out) and button status
+        # Configure the button, status text and availability based on the challenge status
         if status == "Completed":
             button_text = "Review"
             button_state = NORMAL if button_command else DISABLED
@@ -318,7 +278,7 @@ class CaseCard(ttk.Frame):
         else:
             button_text = "Locked"
             button_state = DISABLED
-            status_text = "🔒 Locked" # the emoji is much easier to add then an actual image
+            status_text = "🔒 Locked" # The emoji is much easier to add then an actual image
             status_x = 495 
 
         if status != "Locked":

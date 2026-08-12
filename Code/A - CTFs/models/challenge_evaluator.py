@@ -1,18 +1,13 @@
-
 class ChallengeEvaluator: # Handle answer validation, evaluation and progress storage for challenges
-    def __init__(self, csv_path):
-        self.csv_path = csv_path
-
-        # Dictionary to store each question ID with its correct answer
-        # Using a dictionary allows answers to be retrieved efficiently using the question ID
+    def __init__(self):
+        # Dictionary to store each question ID with its correct answer - Using a dictionary allows answers to be retrieved efficiently using the question ID
         self.correct_answers = {
             "q1": "Image editing", 
             "q2": "Middle",
             "q3": "Image to File Data", 
             "q4": "Pink & Blue"}
-        
-        # Ensure the progress CSV and its headers exist  before the app trys to read or write data
-        self._initialise_csv()
+
+    #----------------------------------------------------------------------------
 
     def validate_inputs(self, user_answers: dict) -> tuple[bool, str | None]: # Check that all questions have a valid response
         for key, value in user_answers.items(): 
@@ -20,6 +15,8 @@ class ChallengeEvaluator: # Handle answer validation, evaluation and progress st
             if not value or value.strip() == "":
                 return False, "Please answer all questions before submitting!"
         return True, None
+
+    #----------------------------------------------------------------------------
 
     def evaluate_answers(self, selections): # Compare user selections with the correct answers and calculate the result
         correct_count = 0
@@ -45,3 +42,5 @@ class ChallengeEvaluator: # Handle answer validation, evaluation and progress st
             "breakdown": results_breakdown,
             "passed": passed
             }
+
+    #----------------------------------------------------------------------------

@@ -1,8 +1,2 @@
 username,timestamp,currentChallenge,numberCorrect,questionNumber,result
-alisha,2026-07-24 23:51:27,Case 1,0,4,Fail
-billy,2026-07-24 23:52:52,Case 1,1,4,Fail
-milly,2026-07-29 09:18:10,Case 1,4,4,Pass
-mia,2026-07-29 09:32:05,Case 1,4,4,Pass
-sally,2026-07-29 10:16:04,Case 1,4,4,Pass
-mrbean,2026-07-31 12:11:27,Case 1,4,4,Pass
-ayvah,2026-08-05 21:07:59,Case 1,2,4,Fail
+jane,2026-08-12 13:29:18,Case 1,4,4,Pass

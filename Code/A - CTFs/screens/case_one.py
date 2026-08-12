@@ -1,23 +1,25 @@
-#from ttkbootstrap.constants import * # type: ignore # This imports constants like LEFT, RIGHT, TOP, BOTTOM - hasn't really been used, remove?
 import ttkbootstrap as ttk # type: ignore
-#from ttkbootstrap.scrolled import ScrolledText - no longer used
 from PIL import Image, ImageTk
 from pathlib import Path
 
 from models.challenge_evaluator import ChallengeEvaluator
 from screens.custom_popup import ResultPopup
+from repos.challenge_progress_repo import ChallengeProgressRepo
 READONLY = "readonly" # Tkinter combobox state constant
+
+    #----------------------------------------------------------------------------
 
 class ChallengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts as a modular screen page
     # Displays the first digital forensics challenge.
     def __init__(self, parent, app):
         super().__init__(parent) # Initialise the frame inside the parent container (app.py)
+
         self.app = app
 
-        SCREENS_DIR = Path(__file__).resolve().parent
-        DATA_DIR = SCREENS_DIR.parent / "data"
-        csv_path = DATA_DIR / "progress.csv"
-        self.evaluator = ChallengeEvaluator(csv_path) # pass csv path into challenge evaluator
+        self.csv_path = self.app.data_dir / "progress.csv"
+
+        self.progress_repo = ChallengeProgressRepo(self.csv_path) # The repository handles saving challenge progress to the CSV
+        self.evaluator = ChallengeEvaluator() # The evaluator handles answer validation and scoring
 
         IMAGE_NAMES = ["errorLevel", "luminanceGradient", "differenceAnalysis", "imageInfo"] # Image list ??? stored as a constant as it is never modified
         
@@ -25,7 +27,7 @@ class ChallengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
         self.icons = {}
 
         for name in IMAGE_NAMES:
-            img_path = DATA_DIR / f"{name}.png"
+            img_path = self.app.data_dir / f"{name}.png"
             raw_img = Image.open(img_path)
             raw_img.thumbnail((520, 315))
             self.icons[name] = ImageTk.PhotoImage(raw_img) # Save it into the dictionary using its name as the key
@@ -122,7 +124,8 @@ Figure 1.4 ~ Additional background information.""",
         from screens.home_screen import HomeScreen # Import here as it creates a circular import if at the start
         self.app.show_screen(HomeScreen)
 
-    # create functions/methods for the buttons inside the class? - should i move this to app or something else?
+    #----------------------------------------------------------------------------
+
     def on_submit_click(self): # Fetch the active username and fall back to "Guest" if None
         #print("Submit button clicked!") # (from testing) add navigation in different folder?
         current_username = self.app.get_current_username()
@@ -147,7 +150,7 @@ Figure 1.4 ~ Additional background information.""",
         results = self.evaluator.evaluate_answers(user_selections)
         #print(results) # testing
         if current_username is not None:
-            self.evaluator.save_progress(
+            self.progress_repo.save_progress( # Save successful or unsuccessful progress through the repo
                         username=current_username,  
                         challenge_name="Case 1",
                         score=results["score"], 
@@ -192,3 +195,5 @@ class ImageTab(ttk.Frame):
             self,
             image=self.img)
         self.image_label.pack(pady=(5, 10))
+
+    #----------------------------------------------------------------------------
