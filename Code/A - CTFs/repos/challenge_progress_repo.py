@@ -5,6 +5,11 @@ from pathlib import Path
     #----------------------------------------------------------------------------
 
 class ChallengeProgressRepo: # Manage reading and writing challenge progress in the CSV file
+    '''
+    The ChallengeProgressRepo class manages the reading, writing and updating of user challenge progress
+    stored in the progress CSV file. Separating these operations into a repository prevents screens from 
+    directly managing CSV data.
+    '''
     HEADERS = [
         "username",
         "timestamp",
@@ -14,7 +19,15 @@ class ChallengeProgressRepo: # Manage reading and writing challenge progress in 
         "result"
         ]
 
-    def __init__(self, csv_path):
+    def __init__(self, csv_path: Path):
+        ''' 
+    Initialises the repository using the location of the progress CSV file and automatically creates 
+    the CSV file if it does not already exist.
+    ~
+    Args:
+        csv_path (Path) is the file system path to progress.csv. 
+            - A Path object is used because the repo performs file and directory operations on the CSV location.
+        '''
         self.csv_path = Path(csv_path)
 
         # Ensure the progress CSV and its headers exist before the app trys to read or write data
@@ -22,18 +35,28 @@ class ChallengeProgressRepo: # Manage reading and writing challenge progress in 
 
     #----------------------------------------------------------------------------
 
-    def _initialise_csv(self): # Create the progress CSV with headers if it does not exist
-            # Ensure the parent data directory exists
-            self.csv_path.parent.mkdir(parents=True, exist_ok=True)
+    def _initialise_csv(self): # Create the parent data dictionary and progress CSV with headers if it does not exist
+        # Ensure the parent data directory exists
+        self.csv_path.parent.mkdir(parents=True, exist_ok=True)
 
-            if not self.csv_path.exists():
-                with open(self.csv_path, mode="w", newline="", encoding="utf-8") as file:
-                    writer = csv.writer(file)
-                    writer.writerow(self.HEADERS)
+        if not self.csv_path.exists():
+            with open(self.csv_path, mode="w", newline="", encoding="utf-8") as file:
+                writer = csv.writer(file)
+                writer.writerow(self.HEADERS)
 
     #----------------------------------------------------------------------------
 
-    def get_completed_cases(self, username): # Read the progress CSV file to find successful cases
+    def get_completed_cases(self, username: str): # Read the progress CSV file to find successful cases
+        '''
+    Args:
+        username (str) is the username being searched for
+            - A string is used because the usernames are stored as text in the progress.CSV file.
+    ~
+    Returns:
+        Set: A set containing the numbers of cases successfully completed by the specified user
+            - A set is used because each completed case only needs to appear once, even if duplicate records exist in the CSV.
+            - Due to the nature of updating the CSV rather than adding to it, this error shouldn't occur, but this still serves as a fail safe
+        '''
         completed = set()
 
         if username:
@@ -63,6 +86,19 @@ class ChallengeProgressRepo: # Manage reading and writing challenge progress in 
     #----------------------------------------------------------------------------
 
     def save_progress(self, username: str, challenge_name: str, score: int, total: int, passed: bool): # Update or create the user's progress record for a challenge
+        '''
+    Args:
+        username (str) is the user's username
+            - A string is used because usernames are text values stored in the CSV.
+        challenge_name (str) is the name of the completed challenge/case
+            - A string is used because challenge names are stored as text.
+        score (int) is the number of questions answered correctly
+            - An  integer is used because the score is a whole-number count.
+        total (int) is the total number of questions in the challenge
+            - An integer is used because this is a whole-number count.
+        passed (bool) determines whether the user passed the challenge
+            - A boolean is used because the result has only two possible states (passed or not passed).
+        '''
         self._initialise_csv()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         status = "Pass" if passed else "Fail"
@@ -110,7 +146,12 @@ class ChallengeProgressRepo: # Manage reading and writing challenge progress in 
 
     #----------------------------------------------------------------------------
 
-    def reset_user_progress(self, username): # Remove all saved progress records belonging to the current user
+    def reset_user_progress(self, username: str): # Remove all saved progress records belonging to the current user
+        '''
+    Args:
+        username (str) is the username whose progress should be removed
+            - A string is used because usernames are stored as text in the CSV file.
+        '''
         username = username.strip().lower()
 
         # Read the existing progress records

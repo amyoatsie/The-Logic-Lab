@@ -10,8 +10,18 @@ READONLY = "readonly" # Tkinter combobox state constant
     #----------------------------------------------------------------------------
 
 class ChallengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts as a modular screen page
-    # Displays the first digital forensics challenge.
+    '''
+    Displays the first digital forensics challenge, including its questions, answer dropdowns, forensic 
+    analysis images and navigation controls.
+    '''
     def __init__(self, parent, app):
+        '''
+    Args:
+        parent (ttk.Frame) is the parent Tkinter frame in which the challenge screen is displayed
+            - A ttk.Frame is used because the challenge screen is a graphical container.
+        app (App) is the main application instance used to access shared application data and navigate 
+        between screens.
+        '''
         super().__init__(parent) # Initialise the frame inside the parent container (app.py)
 
         self.app = app
@@ -61,7 +71,7 @@ Figure 1.4 ~ Additional background information.""",
         self.question_header.place(x=30, y=275, width=150, height=70)
 
         # Questions and numbers
-        self.answer_boxes = []
+        self.answer_boxes = [] # A list stores the four Comboboxes in order so their values can be accessed together when the user submits the challenge
         start_y = 330
 
         for i, question in enumerate(QUESTION_DATA):
@@ -127,15 +137,9 @@ Figure 1.4 ~ Additional background information.""",
     #----------------------------------------------------------------------------
 
     def on_submit_click(self): # Fetch the active username and fall back to "Guest" if None
-        #print("Submit button clicked!") # (from testing) add navigation in different folder?
+        #print("Submit button clicked!") # From testing
         current_username = self.app.get_current_username()
 
-        '''user_selections = {
-            "q1": self.userAnswer1.get(), 
-            "q2": self.userAnswer2.get(),
-            "q3": self.userAnswer3.get(), 
-            "q4": self.userAnswer4.get()
-            }''' # from old design
         user_selections = {
             f"q{i+1}": answer.get()
             for i, answer in enumerate(self.answer_boxes)
@@ -179,7 +183,20 @@ Figure 1.4 ~ Additional background information.""",
     #----------------------------------------------------------------------------
 
 class ImageTab(ttk.Frame):
-    def __init__(self, parent, image_obj, caption):
+    '''
+Represents an individual tab in the Case One image notebook. Each tab contains one forensic analysis 
+image and its explanatory caption.
+    '''
+    def __init__(self, parent: ttk.Notebook, image_obj: ImageTk.PhotoImage, caption: str):
+        '''
+    Args:
+        parent (ttk.Notebook) is the notebook that contains the image tab
+            - A ttk.Notebook is used because each image is displayed on a tab within the Case One interface.
+        image_obj (ImageTk.PhotoImage) is the images displayed in the tabs
+            - PhotoImage is required by Tkinter to display the PIL image within a GUI widget.
+        caption (str) is the explanatory text displayed with the image
+            - A string is used because the caption is text based.
+        '''
         super().__init__(parent, style='TFrame')
         self.img = image_obj
 

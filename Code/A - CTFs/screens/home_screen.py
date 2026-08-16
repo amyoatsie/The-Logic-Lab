@@ -15,7 +15,18 @@ READONLY = "readonly"
     #----------------------------------------------------------------------------
 
 class HomeScreen(ttk.Frame): # Display the main menu, user progress and available challenges through the GUI screen
-    def __init__(self, parent, app):
+    '''
+Displays the main Logic Lab interface, including authentication, challenge progress, challenge cards and navigation 
+to available cases.
+    '''
+    def __init__(self, parent: ttk.Frame, app):
+        '''
+    Args:
+        parent (ttk.Frame) is the parent Tkinter frame in which this screen is displayed
+            - A ttk.Frame is used because the screen is a graphical container for the child widgets.
+        app (App) is the main application instance used to navigate between screens and access shared application 
+        data such as the current username.
+        '''
         super().__init__(parent) # Initialise this screen inside the app's navigation container
         self.app = app # Store the controller for navigation and user state
 
@@ -85,6 +96,32 @@ class HomeScreen(ttk.Frame): # Display the main menu, user progress and availabl
 
     #----------------------------------------------------------------------------
 
+    def validate_username(self, username: str) -> tuple[bool, str | None]: # Validate the format and length of a username before signing the user in
+        '''
+    Args:
+        username (str) is the username entered into the login popup
+            - A string is used because usernames are entered and stored as text.
+    ~
+    Returns:
+        tuple: Contains a boolean indicating whether the username is valid and a string containing 
+        an error message if validation fails.
+            - A tuple groups the validation result and relevant error message.
+            - A boolean indicates whether the username passed validation.
+            - A string stores the error message displayed to the user.
+            - None is returned when no error message is required.
+        '''
+        username = username.strip()
+
+        if len(username) < 1: # Reject usernames which are less than 1 character long
+            return False, "Invalid access attempt! Please enter a username that is at least 1 character long."
+        if len(username) > 25: # Reject usernames which are over 25 characters long
+            return False, "Invalid access attempt! Username must be less than or equal to 25 characters."
+        if username[0].isdigit(): # Reject usernames beginning with a digit
+            return False, "Invalid access attempt! Your username cannot start with a number."
+        return True, None
+
+    #----------------------------------------------------------------------------
+
     def handle_auth_action(self): # Toggle login state and refresh the displayed user
         current_user = self.app.get_current_username() 
         
@@ -102,18 +139,19 @@ class HomeScreen(ttk.Frame): # Display the main menu, user progress and availabl
                 button_text="Submit",
                 show_input=True
                 )
-            # Validate that the username exists and does not begin with a number
-            if popup.user_input_value and popup.user_input_value.strip():
+            # Validate that the username exists
+            if popup.user_input_value is not None:
                 input_name = popup.user_input_value.strip()
+                is_valid, error_message = self.validate_username(input_name)
 
-                if input_name[0].isdigit(): # Reject usernames beginning with a digit
+                if not is_valid: # Reject usernames which don't pass validation
                     ResultPopup(
                         parent=self,
                         title="Access Denied",
-                        message="Invalid access attempt! Your username cannot start with a number.",
+                        message=error_message,
                         button_text="Try Again",
                         show_input=False
-                    )
+                        )
                     return
 
                 self.app.current_user = input_name
@@ -255,8 +293,18 @@ class HomeScreen(ttk.Frame): # Display the main menu, user progress and availabl
 
     #----------------------------------------------------------------------------
 
-class CaseCard(ttk.Frame): # Reusable GUI component used to display a challenge
+class CaseCard(ttk.Frame): # Reusable GUI component used to display a challenge case
     def __init__(self, parent, case_data, status):
+        '''
+    Args:
+        parent (ttk.Frame) is the parent GUI frame that the CaseCard is placed inside
+            - A ttk.Frame is used because the CaseCard is a GUI component displayed within another frame.
+        case_data (dict) is a dictionary containing the challenge's ID, title, description and command
+            - A dictionary is used because multiple related pieces of challenge information need to be 
+            stored together and accessed using clear/descriptive keys.
+        status (str) is the current status of the challenge, (e.g. "Completed", "Unlocked" or "Locked")
+            - A string is used because the status is represented by a text value.
+        '''
         super().__init__(parent, padding=10, style="Card.TFrame")
 
         ttk.Label(self, text=case_data["title"], style="HS2.TLabel", wraplength=380).place(x=15, y=5)

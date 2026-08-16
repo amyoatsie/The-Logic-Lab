@@ -2,7 +2,25 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
 class ResultPopup(ttk.Toplevel): # Display a reusable popup for messages, confirmation and username input
-    def __init__(self, parent, title, message, button_text="OK", show_input=False): # Create and display a popup with optional user input
+    '''
+Provides a reusable modal popup for displaying messages, confirmation prompts and optional username input, 
+which allows different screens to use the same popup design and behaviour.
+    '''
+    def __init__(self, parent, title: str, message: str, button_text: str = "OK", show_input: bool = False): # Create and display a popup with optional user input
+        '''
+    Args:
+        parent (ttk.Widget) is the widget that opened the popup
+            - A Tkinter widget is used so the popup can be positioned relative to the parent and made modal to it.
+        title (str) is the title displayed in the popup
+            - A string is used because the title is textual information.
+        message (str) is the explanatory message displayed to the user
+            - A string is used because the message is textual information.
+        button_text (str) is the text displayed on the popup's main button
+            - A string is used because a default button text of "OK" allows popups to be created without
+            specifying custom text.
+        show_input (bool) determines whether the popup contains a text input field
+            - A boolean is used because the input field has only two possible states (shown or hidden).
+        '''
         super().__init__(parent)
         self.title(title)
         self.geometry("400x200")

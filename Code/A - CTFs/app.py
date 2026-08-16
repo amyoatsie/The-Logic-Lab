@@ -186,11 +186,16 @@ class App(ttk.Window): # Allow the main application controller to inherit direct
     #------------------------------------------------------------------------------
 
     def show_screen(self, screen_class): # Replace the current screen with a new screen object
+        '''
+    Parameters:
+        screen_class (class) is the screen class to be displayed.
+            - A class is passed so that 'App' can create the 'screen' object when navigation occurs.
+        '''
         if self.current_screen is not None: # Remove the previous screen before displaying the new one.
             self.current_screen.destroy()
         self.current_screen = screen_class(self.container, self)
         self.current_screen.pack(fill="both", expand=True)
-# CONSIDER REPLACING WITH SEPERATE FUNCTIONS
+# Potential future development could replace this with seperate functions for each screen
 
     #----------------------------------------------------------------------------
 
