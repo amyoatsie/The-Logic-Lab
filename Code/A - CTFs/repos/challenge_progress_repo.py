@@ -15,7 +15,7 @@ class ChallengeProgressRepo: # Manage reading and writing challenge progress in 
         "timestamp",
         "currentChallenge",
         "numberCorrect",
-        "questionNumber",
+        "totalQuestions",
         "result"
         ]
 
@@ -118,7 +118,7 @@ class ChallengeProgressRepo: # Manage reading and writing challenge progress in 
                     continue
                 
                 # Normalise usernames so comparisons are not affected by capitalisation
-                existing_user = row[0].strip().lower() # maybe redundant
+                existing_user = row[0].strip().lower()
                 
                 # Replace the existing record when the user and challenge match
                 if existing_user == clean_username and row[2] == challenge_name:

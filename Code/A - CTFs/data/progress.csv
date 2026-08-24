@@ -1,3 +1,2 @@
-username,timestamp,currentChallenge,numberCorrect,questionNumber,result
-jane,2026-08-16 15:31:36,Case 1,2,4,Fail
-jane smith,2026-08-16 15:32:39,Case 1,1,4,Fail
+username,timestamp,currentChallenge,numberCorrect,totalQuestions,result
+jane,2026-08-16 15:31:36,Case 1,2,4,Pass

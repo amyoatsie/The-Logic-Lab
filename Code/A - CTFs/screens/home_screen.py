@@ -79,7 +79,7 @@ to available cases.
             self.completed_cases = self.progress_repo.get_completed_cases(current_user)
         
         else:
-            self.username_var.set("Welcome to Logic Lab, Guest")
+            self.username_var.set("Welcome to the Logic Lab, Guest")
             self.auth_button_var.set("Sign In / Up")
             self.completed_cases = set()
 

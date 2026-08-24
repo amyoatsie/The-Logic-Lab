@@ -38,21 +38,21 @@ class App(ttk.Window): # Allow the main application controller to inherit direct
     def setup_custom_theme(self): # Configure the app's colours, fonts and widget styles application-wide
         style = ttk.Style()
         custom_colours = { # Define the shared colour palette used throughout the application as a local variable
-            'primary': '#46403A',
-            'secondary': '#D7C4AC',
+            'primary': "#3C3A46",
+            'secondary': "#ACB2D7", # Modified after Beta Testing
             'success': "#61daae", 
             'info': '#A2B9CB',
             'warning': '#f6c23e',
             'danger': '#B3261E',
             'light': '#FFF6EB',
             'dark': '#5a5c69',
-            'bg': '#C1A37F',
+            'bg': "#7F8EC1", # Modified after Beta Testing
             'fg': '#2e2f37',
             'selectbg': '#eaecf4',
             'selectfg': "#ffffff",
             'border': '#A2B9CB',
             'inputfg': '#2e2f37',
-            'inputbg': '#CAB8A2',
+            'inputbg': "#E2D9EF",
             'active': '#dddfeb'
             }
         

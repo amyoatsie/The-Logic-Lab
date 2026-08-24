@@ -31,7 +31,7 @@ class ChallengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
         self.progress_repo = ChallengeProgressRepo(self.csv_path) # The repository handles saving challenge progress to the CSV
         self.evaluator = ChallengeEvaluator() # The evaluator handles answer validation and scoring
 
-        IMAGE_NAMES = ["errorLevel", "luminanceGradient", "differenceAnalysis", "imageInfo"] # Image list ??? stored as a constant as it is never modified
+        IMAGE_NAMES = ["errorLevel", "luminanceGradient", "differenceAnalysis", "imageInfo"] # Defined as a local tuple/list because they remain constant and correspond only to Case 1 tabs
         
         # Initialise an empty dictionary to store 'PhotoImage' objects and allow simplify retrieval
         self.icons = {}
@@ -56,7 +56,7 @@ class ChallengeScreenOne(ttk.Frame): # Inherit from ttk.Frame so this file acts 
 
     #----------------------------------------------------------------------------
 
-        self.title = ttk.Label(self, text="Metadata Analysis | Case 1", style="H1.TLabel", anchor='w') # change the heading to forensics cause more so image forensics than metadata now?
+        self.title = ttk.Label(self, text="Metadata Analysis | Case 1", style="H1.TLabel", anchor='w') 
         self.title.place(x=30, y=40)
 
         self.explain = ttk.Label(self, text="""The first challenges revolves around the idea of forensic analysis. This challenge features four screens which can be viewed by clicking the labels on the right, and each question will correspond primarily to the figure with the same number.\n~
@@ -88,21 +88,11 @@ Figure 1.4 ~ Additional background information.""",
 
     #----------------------------------------------------------------------------
 
-        # Create and place comboboxes to simplify interface
-        '''self.userAnswer1 = ttk.Combobox(self, style="H4.TCombobox", values=QUESTION_DATA[0]["options"], state=READONLY) # might move under each question?
-        self.userAnswer1.place(x=530, y=350, width=160, height=30)
-        self.userAnswer2 = ttk.Combobox(self, style="H4.TCombobox", values=QUESTION_DATA[1]["options"], state=READONLY)
-        self.userAnswer2.place(x=530, y=430, width=160, height=30)
-        self.userAnswer3 = ttk.Combobox(self, style="H4.TCombobox", values=QUESTION_DATA[2]["options"], state=READONLY)
-        self.userAnswer3.place(x=530, y=510, width=160, height=30)
-        self.userAnswer4 = ttk.Combobox(self, style="H4.TCombobox", values=QUESTION_DATA[3]["options"], state=READONLY)
-        self.userAnswer4.place(x=530, y=590, width=160, height=30)'''
-
         # Create a submission button
-        self.submit_button = ttk.Button(self, text="Submit", style="H6.TButton", command=self.on_submit_click) #Link the submit_button to the relevant command
+        self.submit_button = ttk.Button(self, text="Submit", style="H6.TButton", command=self.on_submit_click)
         self.submit_button.place(x=910, y=590, width=220, height=52)
 
-        self.home_button = ttk.Button(self, text="Home", style="H6.TButton", command=self.go_home)
+        self.home_button = ttk.Button(self, text="Home", style="H6.TButton", command=self.go_home) # Can change 'Home' to 🏡 for future development
         self.home_button.place(x=1190, y=30, width=80, height=45) 
 
     #----------------------------------------------------------------------------
@@ -137,7 +127,7 @@ Figure 1.4 ~ Additional background information.""",
     #----------------------------------------------------------------------------
 
     def on_submit_click(self): # Fetch the active username and fall back to "Guest" if None
-        #print("Submit button clicked!") # From testing
+        # print("Submit button clicked!") #  Debugging statement from testing
         current_username = self.app.get_current_username()
 
         user_selections = {
@@ -152,7 +142,7 @@ Figure 1.4 ~ Additional background information.""",
             return
 
         results = self.evaluator.evaluate_answers(user_selections)
-        #print(results) # testing
+        # print(results) # Debugging statement from testing
         if current_username is not None:
             self.progress_repo.save_progress( # Save successful or unsuccessful progress through the repo
                         username=current_username,  

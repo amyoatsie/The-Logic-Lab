@@ -38,7 +38,7 @@ which allows different screens to use the same popup design and behaviour.
         self.confirmed = False
 
         ttk.Label(frame, text=title, style="H2-2.TLabel").pack(pady=(0, 15))
-        ttk.Label(frame, text=message, style="H4.TLabel", justify="center", wraplength=340).pack() # center or centre???
+        ttk.Label(frame, text=message, style="H4.TLabel", justify="center", wraplength=340).pack()
 
         # Create the input field when the popup is being used for username entry
         if show_input:
