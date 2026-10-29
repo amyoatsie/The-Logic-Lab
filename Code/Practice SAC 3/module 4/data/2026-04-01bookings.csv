@@ -1,2 +1,0 @@
-sales_id,ticket_tier,num_adults,num_children,subtotal,discount,final_cost
-001,STANDARD,3,1,145.0,0,145.0
