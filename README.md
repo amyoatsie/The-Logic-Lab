@@ -11,7 +11,7 @@ A Capture the Flag style game designed to introduce students to CTFs within a co
 - Multi-choice questions to test Understanding
 
 **Video Demo**
-[???](https://youtu.be/nFVzedxvmnw?si=_1ZmahehyhpA3yxw
+[The Logic Lab Demo](https://youtu.be/nFVzedxvmnw?si=_1ZmahehyhpA3yxw
 )
 
 **How it Works and Limitations**
