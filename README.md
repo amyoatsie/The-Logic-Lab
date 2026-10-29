@@ -1,6 +1,6 @@
 # The Logic Lab
 A Capture the Flag style game designed to introduce students to CTFs within a contained environment.
-<img width="1365" height="714" alt="image" src="https://github.com/user-attachments/assets/3d180c99-ecf9-4d80-bbbf-5df877a7e35e" />
+<img src="blob:chrome-untrusted://media-app/2817f495-a2b3-4cb5-837f-0e580feeb659" alt="Screenshot 2026-10-28 13.47.55.png"/><img width="1365" height="714" alt="image" src="https://github.com/user-attachments/assets/e1b22f36-f9fd-475b-9d4a-31c34ed43280" />
 
 **Try:**
 ???
