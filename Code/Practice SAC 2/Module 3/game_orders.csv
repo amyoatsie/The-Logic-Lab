@@ -1,9 +1,0 @@
-order_id,customer_name,game_title,price,download_size_gb,discount_code
-1,Amy Chen,Elden Ring,79.95,60,
-2,Liam Brown,Hades,39.95,15,INDIE10
-3,Sarah Jones,Cyberpunk 2077,69.95,70,
-4,Noah Wilson,Stardew Valley,19.95,2,
-5,Olivia Taylor,Baldur's Gate 3,89.95,120,VIP
-6,Jack Davis,Hollow Knight,24.95,9,
-7,Emma White,Red Dead Redemption 2,69.95,105,
-8,Lucas Martin,Celeste,22.95,4,
